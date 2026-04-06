@@ -91,11 +91,23 @@ class CvController extends Controller
         ]);
 
         $cv->title = $request->title;
-        if (!$cv->is_uploaded) {
-            $cv->content = ['text' => $request->manual_content];
+        
+        // ONLY update content if it's a simple text-based CV (not a builder one)
+        if (!$cv->is_uploaded && (!isset($cv->content['header']))) {
+            if ($request->has('manual_content')) {
+                $cv->content = ['text' => $request->manual_content];
+            }
         }
 
         $cv->save();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true, 
+                'title' => $cv->title,
+                'message' => 'Đã cập nhật tiêu đề hồ sơ.'
+            ]);
+        }
 
         return redirect()->route('client.cv-management')->with('success', 'Hồ sơ đã được cập nhật.');
     }
