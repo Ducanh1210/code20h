@@ -97,23 +97,107 @@
                 @endif
                 
                 <div class="flex justify-between items-start mb-8 relative z-10">
-                    <div class="w-14 h-14 {{ $cv->is_uploaded ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600' }} rounded-2xl flex items-center justify-center shadow-sm">
-                        <span class="material-symbols-outlined text-3xl italic">
-                            {{ $cv->is_uploaded ? 'upload_file' : 'edit_document' }}
-                        </span>
+                    @php
+                        $themeMap = [
+                            'blue' => '#1e40af',
+                            'green' => '#15803d',
+                            'orange' => '#ea580c',
+                            'red' => '#be123c',
+                        ];
+                        $cvTheme = $cv->content['settings']['theme'] ?? 'blue';
+                        $themeColor = $themeMap[$cvTheme] ?? $themeMap['blue'];
+                    @endphp
+
+                    <!-- Mini CV Preview (High-Fidelity) -->
+                    <div class="relative w-24 h-32 bg-white border border-slate-100 rounded-xl shadow-lg overflow-hidden transform group-hover:scale-110 group-hover:-rotate-2 transition-all duration-500 shrink-0 ring-4 ring-slate-50 group-hover:ring-primary/5 flex flex-col">
+                        @if($cv->is_uploaded)
+                            <div class="absolute inset-0 bg-indigo-50/30 flex flex-col items-center justify-center gap-2">
+                                <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
+                                    <span class="material-symbols-outlined text-2xl italic">upload_file</span>
+                                </div>
+                                <span class="text-[9px] font-black text-indigo-400 uppercase tracking-widest px-2 py-0.5 bg-white rounded-full shadow-sm">FILE</span>
+                            </div>
+                        @else
+                            <!-- Header Decoration -->
+                            <div class="h-8 w-full relative flex-shrink-0" style="background-color: {{ $themeColor }}">
+                                <!-- Profile Pic -->
+                                <div class="absolute -bottom-2.5 left-2.5 w-6 h-6 rounded-full border-2 border-white bg-slate-50 overflow-hidden shadow-sm z-10">
+                                    @if(!empty($cv->content['header']['image']))
+                                        <img src="{{ $cv->content['header']['image'] }}" class="w-full h-full object-cover">
+                                    @else
+                                        <div class="w-full h-full flex items-center justify-center">
+                                             <span class="material-symbols-outlined text-[10px] text-slate-300">person</span>
+                                        </div>
+                                    @endif
+                                </div>
+                                <!-- Header Text Overlay Removed -->
+                            </div>
+
+                            <!-- Skeleton Content (Two Columns) -->
+                            <div class="p-1 px-1.5 pt-4.5 flex gap-1.5 h-full overflow-hidden">
+                                <!-- Left Column (35%) -->
+                                <div class="w-[35%] space-y-1.5 border-r border-slate-50 pr-1">
+                                    @php
+                                        $leftSections = collect($cv->content['left_sections'] ?? [])->take(3);
+                                    @endphp
+                                    @foreach($leftSections as $section)
+                                        <div>
+                                            <div class="space-y-0.5 mt-1">
+                                                <div class="h-[0.8px] w-full bg-slate-100 rounded-full"></div>
+                                                <div class="h-[0.8px] w-4/5 bg-slate-100 rounded-full"></div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <!-- Right Column (65%) -->
+                                <div class="flex-1 space-y-1.5 pl-0.5">
+                                    @php
+                                        $rightSections = collect($cv->content['right_sections'] ?? [])->take(3);
+                                    @endphp
+                                    @foreach($rightSections as $section)
+                                        <div>
+                                            <div class="space-y-0.5 mt-1">
+                                                <div class="h-[0.8px] w-full bg-slate-100 rounded-full"></div>
+                                                <div class="h-[0.8px] w-full bg-slate-50 rounded-full"></div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <!-- Bottom Bar -->
+                            <div class="h-0.5 w-full flex-shrink-0" style="background-color: {{ $themeColor }}; opacity: 0.15;"></div>
+                        @endif
                     </div>
                     <div class="flex flex-col items-end gap-2">
-                        <span class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-black rounded-full uppercase tracking-tighter">SẴN SÀNG</span>
+                        <span id="save-indicator-{{ $cv->id }}" class="hidden px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[8px] font-black rounded-full uppercase tracking-tighter animate-pulse shadow-sm border border-emerald-100">Đang lưu..</span>
+                        <span id="status-badge-{{ $cv->id }}" class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-black rounded-full uppercase tracking-tighter">SẴN SÀNG</span>
                         <div class="relative inline-block text-left" x-data="{ open: false }">
                             <button @click="open = !open" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors">
                                 <span class="material-symbols-outlined text-slate-400">more_vert</span>
                             </button>
+                            <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-50 z-50 py-2 animate-fade-in">
+                                <button onclick="editCv({{ $cv->id }}, '{{ addslashes($cv->title) }}', '{{ $cv->is_uploaded ? '' : addslashes($cv->content['text'] ?? '') }}')" class="w-full text-left px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-lg">edit</span>
+                                    Chỉnh sửa nâng cao
+                                </button>
+                                <button onclick="viewCv({{ $cv->id }}, '{{ addslashes($cv->title) }}', '{{ $cv->is_uploaded ? 'File Đã Tải Lên' : addslashes($cv->content['text'] ?? '') }}')" class="w-full text-left px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-lg">visibility</span>
+                                    Xem chi tiết
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-8 relative z-10">
-                    <h3 class="text-xl font-bold text-primary mb-2 group-hover:text-secondary transition-colors headline leading-tight">{{ $cv->title }}</h3>
+                    <h3 id="title-{{ $cv->id }}" 
+                        contenteditable="true" 
+                        onblur="renameCv(event, {{ $cv->id }})"
+                        onkeydown="if(event.key === 'Enter'){ event.preventDefault(); this.blur(); }"
+                        class="text-xl font-bold text-primary mb-2 group-hover:text-secondary transition-colors headline leading-tight outline-none focus:bg-slate-50 focus:px-3 focus:py-1 focus:rounded-xl focus:ring-4 focus:ring-primary/5 cursor-text hover:underline decoration-dotted decoration-primary/30 underline-offset-8">
+                        {{ $cv->title }}
+                    </h3>
                     <div class="flex items-center gap-4">
                         <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5">
                             <span class="material-symbols-outlined text-sm">schedule</span>
@@ -247,6 +331,52 @@
             document.getElementById('view-title').innerText = title;
             document.getElementById('view-content').innerText = content;
             document.getElementById('view-modal').classList.remove('hidden');
+        }
+
+        async function renameCv(event, id) {
+            const newTitle = event.target.innerText.trim();
+            const indicator = document.getElementById('save-indicator-' + id);
+            const badge = document.getElementById('status-badge-' + id);
+            
+            if (!newTitle) return;
+
+            // UI Feedback
+            indicator.classList.remove('hidden');
+            badge.classList.add('hidden');
+
+            try {
+                const response = await fetch(`/cv-management/${id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ title: newTitle })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    setTimeout(() => {
+                        indicator.innerText = '✔ Đã lưu';
+                        indicator.classList.remove('bg-emerald-50', 'text-emerald-600');
+                        indicator.classList.add('bg-blue-50', 'text-blue-600');
+                        setTimeout(() => {
+                            indicator.classList.add('hidden');
+                            badge.classList.remove('hidden');
+                            indicator.innerText = 'Đang lưu..';
+                            indicator.classList.add('bg-emerald-50', 'text-emerald-600');
+                            indicator.classList.remove('bg-blue-50', 'text-blue-600');
+                        }, 1500);
+                    }, 500);
+                }
+            } catch (err) {
+                console.error('Rename failed:', err);
+                alert('Có lỗi xảy ra khi đổi tên hồ sơ.');
+                indicator.classList.add('hidden');
+                badge.classList.remove('hidden');
+            }
         }
     </script>
 
