@@ -47,12 +47,12 @@
     <!-- CV Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         @forelse($cvs as $cv)
-            <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-outline-variant/10 hover:shadow-2xl hover:shadow-primary/5 transition-all group flex flex-col relative overflow-hidden">
+            <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-200/60 hover:shadow-2xl hover:shadow-primary/5 hover:border-primary/30 transition-all group flex flex-col relative overflow-hidden">
                 @if($cv->is_uploaded)
-                    <div class="absolute -right-4 -top-4 w-20 h-20 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+                    <div class="absolute -right-4 -top-4 w-32 h-32 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors pointer-events-none"></div>
                 @endif
                 
-                <div class="flex justify-between items-start mb-8 relative z-10">
+                <div class="flex gap-6 relative z-10 mb-2">
                     @php
                         $themeMap = [
                             'blue' => '#1e40af',
@@ -64,120 +64,90 @@
                         $themeColor = $themeMap[$cvTheme] ?? $themeMap['blue'];
                     @endphp
 
-                    <!-- Mini CV Preview (High-Fidelity) -->
-                    <div class="relative w-24 h-32 bg-white border border-slate-100 rounded-xl shadow-lg overflow-hidden transform group-hover:scale-110 group-hover:-rotate-2 transition-all duration-500 shrink-0 ring-4 ring-slate-50 group-hover:ring-primary/5 flex flex-col">
+                    <!-- Mini CV Preview (Thumbnail Square) -->
+                    <div class="relative w-20 h-20 bg-slate-50 border border-slate-100 rounded-2xl shadow-sm overflow-hidden transform group-hover:scale-105 transition-all duration-300 shrink-0 ring-4 ring-slate-50 cursor-pointer" onclick="viewCv({{ $cv->id }}, '{{ addslashes($cv->title) }}', '{{ $cv->is_uploaded ? 'File Đã Tải Lên' : addslashes($cv->content['text'] ?? '') }}')">
                         @if($cv->is_uploaded)
-                            <div class="absolute inset-0 bg-indigo-50/30 flex flex-col items-center justify-center gap-2">
-                                <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
-                                    <span class="material-symbols-outlined text-2xl italic">upload_file</span>
-                                </div>
-                                <span class="text-[9px] font-black text-indigo-400 uppercase tracking-widest px-2 py-0.5 bg-white rounded-full shadow-sm">FILE</span>
+                            <div class="absolute inset-0 bg-indigo-50 flex flex-col items-center justify-center gap-1 backdrop-blur-[2px]">
+                                <span class="material-symbols-outlined text-[28px] text-indigo-500 italic">description</span>
+                                <span class="text-[7px] font-black text-indigo-600 uppercase tracking-widest bg-white/80 px-2 py-0.5 rounded-full shadow-sm">BẢN GỐC</span>
                             </div>
                         @else
-                            <!-- Header Decoration -->
-                            <div class="h-8 w-full relative flex-shrink-0" style="background-color: {{ $themeColor }}">
-                                <!-- Profile Pic -->
-                                <div class="absolute -bottom-2.5 left-2.5 w-6 h-6 rounded-full border-2 border-white bg-slate-50 overflow-hidden shadow-sm z-10">
-                                    @if(!empty($cv->content['header']['image']))
-                                        <img src="{{ $cv->content['header']['image'] }}" class="w-full h-full object-cover">
-                                    @else
-                                        <div class="w-full h-full flex items-center justify-center">
-                                             <span class="material-symbols-outlined text-[10px] text-slate-300">person</span>
-                                        </div>
-                                    @endif
+                            @if(!empty($cv->content['header']['image']))
+                                <!-- Avatar Fills the Square -->
+                                <img src="{{ $cv->content['header']['image'] }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            @else
+                                <!-- Dynamic Themed Avatar Placeholder -->
+                                <div class="w-full h-full flex items-center justify-center bg-slate-100/50 group-hover:bg-slate-100 transition-colors">
+                                     <div class="w-12 h-12 rounded-full flex items-center justify-center shadow-sm transform group-hover:scale-110 transition-all duration-300" style="background-color: {{ $themeColor }}">
+                                         <span class="material-symbols-outlined text-[24px] text-white">person</span>
+                                     </div>
                                 </div>
-                                <!-- Header Text Overlay Removed -->
-                            </div>
-
-                            <!-- Skeleton Content (Two Columns) -->
-                            <div class="p-1 px-1.5 pt-4.5 flex gap-1.5 h-full overflow-hidden">
-                                <!-- Left Column (35%) -->
-                                <div class="w-[35%] space-y-1.5 border-r border-slate-50 pr-1">
-                                    @php
-                                        $leftSections = collect($cv->content['left_sections'] ?? [])->take(3);
-                                    @endphp
-                                    @foreach($leftSections as $section)
-                                        <div>
-                                            <div class="space-y-0.5 mt-1">
-                                                <div class="h-[0.8px] w-full bg-slate-100 rounded-full"></div>
-                                                <div class="h-[0.8px] w-4/5 bg-slate-100 rounded-full"></div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                                <!-- Right Column (65%) -->
-                                <div class="flex-1 space-y-1.5 pl-0.5">
-                                    @php
-                                        $rightSections = collect($cv->content['right_sections'] ?? [])->take(3);
-                                    @endphp
-                                    @foreach($rightSections as $section)
-                                        <div>
-                                            <div class="space-y-0.5 mt-1">
-                                                <div class="h-[0.8px] w-full bg-slate-100 rounded-full"></div>
-                                                <div class="h-[0.8px] w-full bg-slate-50 rounded-full"></div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-
-                            <!-- Bottom Bar -->
-                            <div class="h-0.5 w-full flex-shrink-0" style="background-color: {{ $themeColor }}; opacity: 0.15;"></div>
+                            @endif
                         @endif
                     </div>
-                    <div class="flex flex-col items-end gap-2">
-                        <span id="save-indicator-{{ $cv->id }}" class="hidden px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[8px] font-black rounded-full uppercase tracking-tighter animate-pulse shadow-sm border border-emerald-100">Đang lưu..</span>
-                        <span id="status-badge-{{ $cv->id }}" class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-black rounded-full uppercase tracking-tighter">SẴN SÀNG</span>
-                        <div class="relative inline-block text-left" x-data="{ open: false }">
-                            <button @click="open = !open" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors">
-                                <span class="material-symbols-outlined text-slate-400">more_vert</span>
-                            </button>
-                            <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-50 z-50 py-2 animate-fade-in">
-                                <button onclick="editCv({{ $cv->id }}, '{{ addslashes($cv->title) }}', '{{ $cv->is_uploaded ? '' : addslashes($cv->content['text'] ?? '') }}')" class="w-full text-left px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-lg">edit</span>
-                                    Chỉnh sửa nâng cao
+
+                    <!-- Right Info Block -->
+                    <div class="flex-1 flex flex-col min-w-0">
+                        <!-- Title & Options -->
+                        <div class="flex justify-between items-start gap-2 mb-1">
+                            <h3 id="title-{{ $cv->id }}" 
+                                contenteditable="true" 
+                                onblur="renameCv(event, {{ $cv->id }})"
+                                onkeydown="if(event.key === 'Enter'){ event.preventDefault(); this.blur(); }"
+                                class="text-base font-bold text-slate-800 focus:text-primary mb-0 headline leading-tight outline-none focus:bg-slate-50 focus:px-2 rounded focus:ring-2 focus:ring-primary/10 cursor-text -ml-1 line-clamp-2">
+                                {{ $cv->title }}
+                            </h3>
+                            
+                            <!-- 3 dots action menu -->
+                            <div class="relative shrink-0 text-left -mr-2" x-data="{ open: false }">
+                                <button @click="open = !open" class="w-7 h-7 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors">
+                                    <span class="material-symbols-outlined text-slate-400 text-lg">more_vert</span>
                                 </button>
-                                <button onclick="viewCv({{ $cv->id }}, '{{ addslashes($cv->title) }}', '{{ $cv->is_uploaded ? 'File Đã Tải Lên' : addslashes($cv->content['text'] ?? '') }}')" class="w-full text-left px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-lg">visibility</span>
-                                    Xem chi tiết
-                                </button>
+                                <div x-show="open" @click.away="open = false" class="absolute right-0 mt-1 w-44 bg-white rounded-xl shadow-xl shadow-slate-200/50 border border-slate-100 z-50 py-1.5 animate-fade-in origin-top-right">
+                                    <button onclick="editCv({{ $cv->id }}, '{{ addslashes($cv->title) }}', '{{ $cv->is_uploaded ? '' : addslashes($cv->content['text'] ?? '') }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-sm">edit</span> Tên & Nội dung
+                                    </button>
+                                    <button onclick="viewCv({{ $cv->id }}, '{{ addslashes($cv->title) }}', '{{ $cv->is_uploaded ? 'File Đã Tải Lên' : addslashes($cv->content['text'] ?? '') }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-sm">visibility</span> Xem nội dung
+                                    </button>
+                                </div>
                             </div>
+                        </div>
+
+                        <!-- Meta Info -->
+                        <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mb-2.5">
+                            <span class="material-symbols-outlined text-[11px]">schedule</span>
+                            Cập nhật lúc: {{ $cv->updated_at->diffForHumans() }}
+                        </div>
+
+                        <span id="save-indicator-{{ $cv->id }}" class="hidden px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[8px] font-black rounded-md uppercase tracking-tighter animate-pulse border border-emerald-100 w-fit mb-auto">Đang lưu..</span>
+                        
+                        <!-- Tags -->
+                        <div class="flex items-center gap-2 mt-auto">
+                            <span id="status-badge-{{ $cv->id }}" class="px-2 py-0.5 bg-emerald-50 border border-emerald-100 text-emerald-600 text-[8px] font-black rounded-md uppercase tracking-widest">SẴN SÀNG</span>
+                            @if($cv->is_uploaded)
+                                <span class="px-2 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-600 text-[8px] font-black rounded-md uppercase tracking-widest">TÀI LIỆU GỐC</span>
+                            @else
+                                <span class="px-2 py-0.5 bg-sky-50 border border-sky-100 text-sky-600 text-[8px] font-black rounded-md uppercase tracking-widest">A4 BUILDER</span>
+                            @endif
                         </div>
                     </div>
                 </div>
 
-                <div class="mb-8 relative z-10">
-                    <h3 id="title-{{ $cv->id }}" 
-                        contenteditable="true" 
-                        onblur="renameCv(event, {{ $cv->id }})"
-                        onkeydown="if(event.key === 'Enter'){ event.preventDefault(); this.blur(); }"
-                        class="text-xl font-bold text-primary mb-2 group-hover:text-secondary transition-colors headline leading-tight outline-none focus:bg-slate-50 focus:px-3 focus:py-1 focus:rounded-xl focus:ring-4 focus:ring-primary/5 cursor-text hover:underline decoration-dotted decoration-primary/30 underline-offset-8">
-                        {{ $cv->title }}
-                    </h3>
-                    <div class="flex items-center gap-4">
-                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-sm">schedule</span>
-                            {{ $cv->created_at->diffForHumans() }}
-                        </p>
-                    </div>
-                </div>
-
-                <div class="mt-auto pt-6 flex items-center justify-between border-t border-slate-50 relative z-10">
-                    <button onclick="viewCv({{ $cv->id }}, '{{ addslashes($cv->title) }}', '{{ $cv->is_uploaded ? 'File Đã Tải Lên' : addslashes($cv->content['text'] ?? '') }}')" class="text-primary font-black text-[10px] flex items-center gap-2 group/btn uppercase tracking-widest">
-                        Chi tiết hồ sơ
-                        <span class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
-                    </button>
+                <!-- Footer Separator & Actions -->
+                <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-end relative z-10">
                     <div class="flex items-center gap-2">
                         @if(!$cv->is_uploaded)
-                            <a href="{{ route('client.cv-builder', $cv) }}" class="text-slate-300 hover:text-secondary transition-colors">
-                                <span class="material-symbols-outlined text-xl">edit</span>
+                            <a href="{{ route('client.cv-builder', $cv) }}" class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white transition-all hover:scale-110 shadow-sm">
+                                <span class="material-symbols-outlined text-[15px]">brush</span>
                             </a>
                         @endif
                         <form action="{{ route('client.cv-management.destroy', $cv) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa hồ sơ này?')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-slate-300 hover:text-error transition-colors">
-                                <span class="material-symbols-outlined text-xl">delete</span>
+                            <button type="submit" class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-rose-500 hover:text-white transition-all hover:scale-110 shadow-sm">
+                                <span class="material-symbols-outlined text-[15px]">delete</span>
                             </button>
                         </form>
                     </div>

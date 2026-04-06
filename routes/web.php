@@ -20,6 +20,7 @@ Route::get('/', function () {
 
 use App\Http\Controllers\CvController;
 use App\Http\Controllers\JobDescriptionController;
+use App\Http\Controllers\CvAnalysisController;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
@@ -42,9 +43,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/jobs/{jd}', [JobDescriptionController::class, 'update'])->name('client.jobs.update');
     Route::delete('/jobs/{jd}', [JobDescriptionController::class, 'destroy'])->name('client.jobs.destroy');
 
-    Route::get('/ai-analysis', function () {
-        return view('client.ai-analysis');
-    })->name('client.ai-analysis');
+    // AI Analysis - CV vs JD
+    Route::get('/ai-analysis', [CvAnalysisController::class, 'index'])->name('client.ai-analysis');
+    Route::post('/ai-analysis/compare', [CvAnalysisController::class, 'compare'])->name('client.ai-analysis.compare');
+    Route::post('/ai-analysis/analyze-cv', [CvAnalysisController::class, 'analyzeCv'])->name('client.ai-analysis.analyze-cv');
 
     Route::get('/roadmap', function () {
         return view('client.roadmap');
