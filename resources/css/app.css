@@ -1,3 +1,34 @@
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    body {
+        @apply font-body bg-surface text-on-surface antialiased;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-headline;
+    }
+}
+
+@layer components {
+    .glass-panel {
+        @apply bg-white/80 backdrop-blur-xl border border-white/60;
+    }
+
+    .score-glow {
+        filter: drop-shadow(0 0 12px rgba(70, 72, 212, 0.4));
+    }
+
+    .tonal-layering {
+        @apply transition-all duration-300;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+}
