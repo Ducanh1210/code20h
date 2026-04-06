@@ -218,27 +218,28 @@ class CvController extends Controller
     /**
      * Show the interactive CV Builder.
      */
-    public function builder(Cv $cv)
+    public function builder(Request $request, Cv $cv)
     {
         $this->authorizeOwner($cv);
 
-        // If content is empty or lacks critical A4 structure, initialize
-        if (empty($cv->content) || !isset($cv->content['header'])) {
+        // Allow forcing a demo reset via ?reset=1
+        if ($request->has('reset') || empty($cv->content) || !isset($cv->content['header'])) {
             $cv->content = [
+                'settings' => [
+                    'theme' => 'blue',
+                    'font' => 'Be Vietnam Pro',
+                    'zoom' => 0.9,
+                    'font_size' => 10.5,
+                ],
                 'header' => [
                     'name' => Auth::user()->name ?: 'CHU QUỐC TUẤN',
-                    'job_title' => 'Lập Trình Viên',
-                    'email' => Auth::user()->email ?: 'chutuxfyu@gmail.com',
+                    'job_title' => 'Lập Trình Viên Web',
+                    'image' => null,
                     'phone' => '0983267793',
+                    'email' => Auth::user()->email ?: 'chutuxfyu@gmail.com',
                     'dob' => '02/10/2006',
                     'gender' => 'Nam',
-                    'address' => 'Phường Lý Thường Kiệt - Ninh Bình',
-                    'website' => '',
-                    'image' => null, // Base64
-                ],
-                'settings' => [
-                    'theme' => 'blue', // blue, green, orange, red
-                    'zoom' => 1.0,
+                    'address' => 'Phường Lý Thường Kiệt - Ninh Bình'
                 ],
                 'left_sections' => [
                     [
@@ -247,37 +248,55 @@ class CvController extends Controller
                         'items' => [
                             [
                                 'title' => 'Trường Cao Đẳng FPT Polytechnic',
-                                'subtitle' => '- Lập Trình Web',
+                                'subtitle' => 'Lập Trình Web',
                                 'date' => '2024 - 2026',
-                                'description' => '- Sinh viên học kỳ 5 / 6\n- GPA: 3.72 / 4.0'
+                                'description' => "- Sinh viên học kỳ 5 / 6\n- GPA: 3.72 / 4.0"
                             ]
                         ]
                     ],
                     [
                         'id' => 'skills',
                         'title' => 'KỸ NĂNG',
-                        'content' => '- Ngôn ngữ: PHP, JS\n- Cơ sở dữ liệu: MySQL\n- Làm việc nhóm\n- Giải quyết vấn đề',
-                        'type' => 'text'
+                        'items' => [
+                            [
+                                'title' => 'Ngôn ngữ: PHP, JS',
+                                'subtitle' => 'Cơ sở dữ liệu: My SQL',
+                                'date' => '',
+                                'description' => "- Làm việc nhóm\n- Giải quyết vấn đề"
+                            ]
+                        ]
                     ],
                     [
                         'id' => 'certs',
                         'title' => 'CHỨNG CHỈ',
-                        'content' => '- 2025: Xây dựng hệ thống quản lý & tự động hóa quy trình hợp tác doanh nghiệp\n- 2025: Luyện tập kỹ năng lập trình OOP PHP',
-                        'type' => 'text'
+                        'items' => [
+                            [
+                                'title' => '2025: Xây dựng hệ thống quản lý & tự động hóa quy trình hợp tác doanh nghiệp',
+                                'subtitle' => '',
+                                'date' => '',
+                                'description' => "- 2025: Luyện tập kỹ năng lập trình OOP PHP"
+                            ]
+                        ]
                     ],
                     [
                         'id' => 'awards',
                         'title' => 'GIẢI THƯỞNG',
-                        'content' => '- Đạt danh hiệu Ong vàng học kỳ 3.\n- Đạt danh hiệu Sinh viên giỏi kỳ 1,2,3,4.',
-                        'type' => 'text'
+                        'items' => [
+                            [
+                                'title' => 'Đạt danh hiệu Ong vàng học kỳ 3.',
+                                'subtitle' => '',
+                                'date' => '',
+                                'description' => "- Đạt danh hiệu Sinh viên giỏi kỳ 1,2,3,4."
+                            ]
+                        ]
                     ]
                 ],
                 'right_sections' => [
                     [
                         'id' => 'objective',
                         'title' => 'MỤC TIÊU NGHỀ NGHIỆP',
-                        'content' => 'Ngắn hạn (dưới 2 năm): Nâng cao kỹ năng lập trình, tích lũy kinh nghiệm thực tế, cải thiện khả năng xử lý lỗi.\nDài hạn (2-3 năm): Trở thành lập trình viên vững chuyên môn, có khả năng phát triển và tối ưu hệ thống độc lập, đóng góp hiệu quả vào các dự án của công ty.',
-                        'type' => 'text'
+                        'type' => 'text',
+                        'content' => "Ngắn hạn (dưới 2 năm): Nâng cao kỹ năng lập trình, tích lũy kinh nghiệm thực tế, cải thiện khả năng xử lý lỗi.\nDài hạn (2-3 năm): Trở thành lập trình viên vững chuyên môn, có khả năng phát triển và tối ưu hệ thống độc lập, đóng góp hiệu quả vào các dự án của công ty."
                     ],
                     [
                         'id' => 'experience',
@@ -287,13 +306,13 @@ class CvController extends Controller
                                 'title' => 'Dự án 1: Hệ thống đặt phòng khách sạn',
                                 'subtitle' => 'Vai trò: Trưởng nhóm',
                                 'date' => '13/11/2025 - 10/12/2025',
-                                'description' => '- Phân công công việc và quản lý tiến độ cho các thành viên trong nhóm.\n- Tham gia xây dựng các chức năng chính: đặt phòng, thanh toán online, quản lý đơn phòng.\n- Kiểm thử chức năng và hỗ trợ xử lý lỗi phát sinh.\n- Đảm bảo dự án hoàn thành đúng thời hạn.\n- Kết quả hoàn thành tốt dự án (8đ).'
+                                'description' => "- Phân công công việc và quản lý tiến độ cho các thành viên trong nhóm.\n- Tham gia xây dựng các chức năng chính: đặt phòng, thanh toán online, quản lý đơn phòng.\n- Kiểm thử chức năng và hỗ trợ xử lý lỗi phát sinh.\n- Đảm bảo dự án hoàn thành đúng thời hạn.\n- Kết quả hoàn thành tốt dự án ( 8đ )."
                             ],
                             [
                                 'title' => 'Dự án N8N',
                                 'subtitle' => 'Xây dựng hệ thống quản lý & tự động hóa quy trình hợp tác doanh nghiệp',
                                 'date' => '10/2025 - 12/2025',
-                                'description' => '- Xây dựng workflow tự động hóa bằng n8n để thu thập và xử lý dữ liệu\n- Sử dụng HTTP Request để crawl và trích xuất dữ liệu\n- Xây dựng các bước xử lý dữ liệu (lọc, chuẩn hóa, loại bỏ trùng lặp)\n- Tích hợp hệ thống qua API/Webhook\n- Giảm -70% thao tác nhập liệu thủ công'
+                                'description' => "- Xây dựng workflow tự động hóa bằng n8n để thu thập và xử lý dữ liệu\n- Sử dụng HTTP Request để crawl và trích xuất dữ liệu\n- Xây dựng các bước xử lý dữ liệu (lọc, chuẩn hóa, loại bỏ trùng lặp)\n- Tích hợp hệ thống qua API/Webhook\n- Giảm -70% thao tác nhập liệu thủ công"
                             ]
                         ]
                     ],
@@ -305,7 +324,7 @@ class CvController extends Controller
                                 'title' => 'Câu Lạc Bộ IT',
                                 'subtitle' => 'Thành viên',
                                 'date' => '2024 - 2026',
-                                'description' => '- Tham gia hỗ trợ trending AI cho các thầy cô giáo tiểu học và trung học\n- Hỗ trợ người dân thực hiện một số thủ tục hành chính ở các phường xã\n- Tham gia các cuộc thi kỹ năng tin học và công nghệ thông tin'
+                                'description' => "- Tham gia hỗ trợ trending AI cho các thầy cô giáo tiểu học và trung học\n- Hỗ trợ người dân thực hiện một số thủ tục hành chính ở các phường xã\n- Tham gia các cuộc thi kỹ năng tin học và công nghệ thông tin"
                             ]
                         ]
                     ]
