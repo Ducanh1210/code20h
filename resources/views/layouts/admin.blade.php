@@ -76,15 +76,17 @@
 
                 <!-- Footer Sidebar -->
                 <div class="p-6 border-t border-white/5">
-                    <div class="bg-white/5 p-4 rounded-2xl flex items-center gap-3 mb-4">
-                        <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold text-sky-400 border border-white/10">
-                            {{ substr(Auth::user()->name, 0, 1) }}
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-bold text-white truncate">{{ Auth::user()->name }}</p>
-                            <p class="text-[10px] text-slate-500 font-bold uppercase truncate">{{ Auth::user()->role }}</p>
-                        </div>
-                    </div>
+                        @auth
+                            <div class="bg-white/5 p-4 rounded-2xl flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold text-sky-400 border border-white/10">
+                                    {{ substr(Auth::user()->name, 0, 1) }}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-bold text-white truncate">{{ Auth::user()->name }}</p>
+                                    <p class="text-[10px] text-slate-500 font-bold uppercase truncate">{{ Auth::user()->role }}</p>
+                                </div>
+                            </div>
+                        @endauth
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button class="w-full py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-2">
