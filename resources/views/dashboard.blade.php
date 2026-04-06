@@ -150,6 +150,81 @@
                 <button class="w-full mt-8 py-3 border border-slate-200 rounded-2xl text-slate-600 font-bold text-sm hover:bg-slate-50 transition-colors">Khám phá thêm việc làm</button>
             </div>
         </div>
+
+        @if(Auth::user()->role === 'admin' && isset($totalUsers))
+            <!-- Admin Stats Section -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-4 border-start border-primary border-5">
+                        <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                            <div>
+                                <div class="text-uppercase text-muted small fw-bold mb-1" style="letter-spacing: 1px;">Tổng người dùng</div>
+                                <div class="h2 fw-bold mb-0 text-dark">{{ $totalUsers }}</div>
+                            </div>
+                            <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-4">
+                                <span class="material-symbols-outlined fs-2">group</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-4 border-start border-dark border-5">
+                        <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                            <div>
+                                <div class="text-uppercase text-muted small fw-bold mb-1" style="letter-spacing: 1px;">Tài khoản Admin</div>
+                                <div class="h2 fw-bold mb-0 text-dark">{{ $adminCount }}</div>
+                            </div>
+                            <div class="p-3 bg-dark bg-opacity-10 text-dark rounded-4">
+                                <span class="material-symbols-outlined fs-2">admin_panel_settings</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            @if(isset($recentUsers))
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-header bg-light border-0 px-4 py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold text-dark">Thành viên mới gia nhập</h5>
+                        <a href="{{ route('admin.users.index') }}" class="btn btn-link link-primary fw-bold text-decoration-none small">Xem tất cả</a>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            @foreach($recentUsers as $user)
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="d-flex align-items-center p-3 bg-light rounded-4 border-0 transition-all hover-shadow">
+                                        <div class="rounded-3 bg-primary text-white d-flex align-items-center justify-content-center fw-bold me-3" style="width: 48px; height: 48px;">
+                                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                                        </div>
+                                        <div class="text-truncate">
+                                            <div class="fw-bold text-dark text-truncate">{{ $user->name }}</div>
+                                            <div class="small text-muted text-truncate">{{ $user->email }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            @endif
+        @else
+            <!-- Non-Admin Section -->
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-4 p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="p-3 bg-warning bg-opacity-10 text-warning rounded-4 me-3">
+                                <span class="material-symbols-outlined fs-2">lock</span>
+                            </div>
+                            <h5 class="mb-0 fw-bold text-dark">Thông tin</h5>
+                        </div>
+                        <p class="text-muted small italic mb-0">Hệ thống đang bảo mật dữ liệu cá nhân của bạn. Cập nhật thông tin định kỳ để đảm bảo an toàn.</p>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 
     @push('fab')
