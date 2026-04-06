@@ -89,6 +89,13 @@
                         <span id="save-status-icon" class="material-symbols-outlined text-xs">done</span>
                         <span id="save-status-text">Đã lưu</span>
                     </span>
+
+                    <!-- Download PDF Button -->
+                    <button onclick="window.print()" class="px-4 py-1.5 bg-slate-800 text-white font-black rounded-full hover:bg-slate-700 hover:shadow-md active:scale-95 transition-all uppercase text-[10px] tracking-widest flex items-center gap-2 group">
+                        <span class="material-symbols-outlined text-[16px] group-hover:-translate-y-0.5 transition-transform">download</span>
+                        <span>Tải PDF</span>
+                    </button>
+
                     <button @click="saveCv()" class="px-4 py-1.5 bg-primary text-white font-black rounded-full hover:shadow-md active:scale-95 transition-all uppercase text-[10px] tracking-widest flex items-center gap-2 group">
                         <span class="material-symbols-outlined text-[16px] group-hover:rotate-12 transition-transform">save</span>
                         <span>Lưu</span>
@@ -385,15 +392,114 @@
                             height: 297mm;
                             min-height: 297mm;
                             position: relative;
+                            background: white;
                         }
+                        
+                        /* Cố định chuẩn A4 in ấn */
+                        @page {
+                            size: 210mm 297mm;
+                            margin: 0mm; 
+                        }
+                        
                         @media print {
-                            body * { visibility: hidden; }
-                            #scroll-workspace, .page-a4, .page-a4 * { visibility: visible; }
-                            .page-a4 { box-shadow: none; margin: 0; page-break-after: always; position: relative !important; top: 0 !important; left: 0 !important; }
+                            * {
+                                -webkit-print-color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                                -webkit-text-size-adjust: none !important;
+                                text-size-adjust: none !important;
+                            }
+                            
+                            html, body {
+                                width: 210mm !important;
+                                background: white !important;
+                                margin: 0 !important;
+                                padding: 0 !important;
+                                font-size: 12px !important; /* Thu nhỏ cỡ chữ thêm nữa khi export PDF */
+                            }
+                            
+                            /* Chỉ hiện duy nhất bảng làm việc đã được script cách ly */
+                            #scroll-workspace {
+                                display: block !important;
+                                position: absolute !important;
+                                left: 0 !important;
+                                top: 0 !important;
+                                width: 210mm !important;
+                                height: auto !important;
+                                margin: 0 !important;
+                                padding: 0 !important;
+                                overflow: visible !important;
+                                background: white !important;
+                            }
+                            
+                            #scroll-workspace > div {
+                                transform: none !important;
+                                display: block !important;
+                                align-items: flex-start !important;
+                                margin: 0 !important;
+                                padding: 0 !important;
+                                width: 210mm !important;
+                            }
+                            
+                            .page-a4 { 
+                                width: 210mm !important;
+                                height: 297mm !important;
+                                box-shadow: none !important; 
+                                margin: 0 !important;
+                                padding: 0 !important;
+                                border: none !important;
+                                page-break-after: always !important; 
+                                break-after: page !important;
+                            }
+                            
                             .no-print { display: none !important; }
                         }
                     `;
                     document.head.appendChild(style);
+                    
+                    // Script CÁCH LY DOM khẩn cấp để in mượt mà
+                    let printWorkspaceParent, printWorkspaceSibling, hiddenNodes = [];
+                    window.addEventListener('beforeprint', () => {
+                        const workspace = document.getElementById('scroll-workspace');
+                        if(!workspace) return;
+                        
+                        // Tắt zoom
+                        workspace.querySelector('div').style.transform = 'none';
+                        
+                        printWorkspaceParent = workspace.parentNode;
+                        printWorkspaceSibling = workspace.nextElementSibling;
+                        
+                        // Ẩn tất cả những gì không thuộc CV
+                        Array.from(document.body.children).forEach(child => {
+                            if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && child.tagName !== 'LINK') {
+                                hiddenNodes.push({ node: child, display: child.style.display });
+                                child.style.display = 'none';
+                            }
+                        });
+                        
+                        // Đưa workspace ra ngoài trực tiếp Body để thoát quy tắc layout
+                        document.body.appendChild(workspace);
+                    });
+
+                    window.addEventListener('afterprint', () => {
+                        const workspace = document.getElementById('scroll-workspace');
+                        if(!workspace) return;
+                        
+                        // Trả lại DOM
+                        if (printWorkspaceSibling) {
+                            printWorkspaceParent.insertBefore(workspace, printWorkspaceSibling);
+                        } else {
+                            printWorkspaceParent.appendChild(workspace);
+                        }
+                        
+                        // Khôi phục layout app
+                        hiddenNodes.forEach(item => {
+                            item.node.style.display = item.display;
+                        });
+                        hiddenNodes = [];
+                        
+                        // Hồi máu Zoom
+                        window.dispatchEvent(new CustomEvent('restore-zoom'));
+                    });
 
                     this.paginate();
 

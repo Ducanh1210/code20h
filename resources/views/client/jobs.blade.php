@@ -128,91 +128,95 @@
     {{-- CREATE JD MODAL --}}
     {{-- ============================== --}}
     <div id="create-jd-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md" onclick="if(event.target===this)this.classList.add('hidden')">
-        <form action="{{ route('client.jobs.store') }}" method="POST" class="bg-white w-full max-w-5xl rounded-[2.5rem] shadow-2xl relative animate-fade-in flex flex-col max-h-[90vh] overflow-hidden border border-white/20">
+        <form action="{{ route('client.jobs.store') }}" method="POST" class="bg-white w-full max-w-3xl rounded-3xl shadow-2xl relative animate-fade-in flex flex-col max-h-[90vh] overflow-hidden">
             @csrf
             {{-- Header --}}
-            <div class="sticky top-0 bg-white/80 backdrop-blur-xl z-30 px-10 pt-8 pb-5 border-b border-slate-100/50">
-                <button type="button" onclick="document.getElementById('create-jd-modal').classList.add('hidden')" class="absolute right-8 top-8 w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all duration-300">
-                    <span class="material-symbols-outlined text-xl">close</span>
+            <div class="sticky top-0 bg-white z-30 px-8 pt-7 pb-5 border-b border-slate-100">
+                <button type="button" onclick="document.getElementById('create-jd-modal').classList.add('hidden')" class="absolute right-6 top-6 w-9 h-9 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all">
+                    <span class="material-symbols-outlined text-lg">close</span>
                 </button>
-                <div class="flex items-center gap-4 mb-1">
-                    <div class="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center">
-                        <span class="material-symbols-outlined text-2xl">add_task</span>
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
+                        <span class="material-symbols-outlined text-xl">add_task</span>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-black text-primary headline tracking-tight">Thêm Mô tả Công việc mới</h3>
-                        <p class="text-slate-400 text-xs font-bold uppercase tracking-widest leading-none">Cung cấp thông tin chi tiết để AI phân tích chính xác nhất</p>
+                        <h3 class="text-xl font-extrabold text-primary tracking-tight">Thêm Mô tả Công việc mới</h3>
+                        <p class="text-slate-400 text-xs">Điền thông tin JD để AI so sánh với CV của bạn</p>
                     </div>
                 </div>
             </div>
 
             {{-- Body --}}
-            <div class="flex-1 overflow-y-auto px-10 py-8 custom-scrollbar bg-slate-50/10">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                    {{-- Cột trái: Thông tin cơ bản --}}
-                    <div class="space-y-6">
-                        <div class="space-y-2">
-                            <label class="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
-                                <span class="material-symbols-outlined text-sm">apartment</span>
-                                Tên doanh nghiệp <span class="text-red-400">*</span>
-                            </label>
-                            <input type="text" name="company_name" required placeholder="VD: FPT Software, VNG..." value="{{ old('company_name') }}" class="w-full bg-white border-2 border-slate-100 rounded-xl px-5 py-3 font-bold text-primary focus:border-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all placeholder:text-slate-300">
-                        </div>
+            <div class="flex-1 overflow-y-auto px-8 py-6 custom-scrollbar space-y-6">
 
-                        <div class="space-y-2">
-                            <label class="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
-                                <span class="material-symbols-outlined text-sm">school</span>
-                                Chuyên ngành phù hợp
-                            </label>
-                            <input type="text" name="domain" placeholder="VD: Công nghệ thông tin..." value="{{ old('domain') }}" class="w-full bg-white border-2 border-slate-100 rounded-xl px-5 py-3 font-bold text-primary focus:border-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all placeholder:text-slate-300">
+                {{-- Section 1: Thông tin cơ bản --}}
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="w-6 h-6 rounded-lg bg-indigo-500 text-white text-xs font-bold flex items-center justify-center">1</span>
+                        <h4 class="text-sm font-bold text-primary">Thông tin cơ bản</h4>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5 ml-0.5">Tên doanh nghiệp <span class="text-red-400">*</span></label>
+                            <input type="text" name="company_name" required placeholder="VD: FPT Software, VNG..." value="{{ old('company_name') }}"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-primary focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 focus:bg-white outline-none transition-all placeholder:text-slate-300">
                         </div>
-
-                        <div class="space-y-2">
-                            <label class="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
-                                <span class="material-symbols-outlined text-sm">description</span>
-                                Mô tả công việc
-                            </label>
-                            <textarea name="description" rows="8" placeholder="Dán nội dung mô tả công việc tại đây..." class="w-full bg-white border-2 border-slate-100 rounded-2xl px-5 py-4 font-medium text-slate-600 focus:border-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all resize-none min-h-[220px]">{{ old('description') }}</textarea>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5 ml-0.5">Vị trí tuyển dụng <span class="text-red-400">*</span></label>
+                            <input type="text" name="title" required placeholder="VD: Backend Developer Intern" value="{{ old('title') }}"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-primary focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 focus:bg-white outline-none transition-all placeholder:text-slate-300">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5 ml-0.5">Chuyên ngành</label>
+                            <input type="text" name="domain" placeholder="VD: Công nghệ thông tin, Kỹ thuật phần mềm..." value="{{ old('domain') }}"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-primary focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 focus:bg-white outline-none transition-all placeholder:text-slate-300">
                         </div>
                     </div>
+                </div>
 
-                    {{-- Cột phải: Yêu cầu & Quyền lợi --}}
-                    <div class="space-y-6">
-                        <div class="space-y-2">
-                            <label class="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
-                                <span class="material-symbols-outlined text-sm">work</span>
-                                Vị trí thực tập <span class="text-red-400">*</span>
-                            </label>
-                            <input type="text" name="title" required placeholder="VD: Backend Developer Intern" value="{{ old('title') }}" class="w-full bg-white border-2 border-slate-100 rounded-xl px-5 py-3 font-bold text-primary focus:border-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all placeholder:text-slate-300">
+                <hr class="border-slate-100">
+
+                {{-- Section 2: Mô tả công việc --}}
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="w-6 h-6 rounded-lg bg-emerald-500 text-white text-xs font-bold flex items-center justify-center">2</span>
+                        <h4 class="text-sm font-bold text-primary">Mô tả công việc</h4>
+                    </div>
+                    <textarea name="description" rows="5" placeholder="Dán nội dung mô tả công việc tại đây...&#10;&#10;VD: Phát triển và bảo trì các ứng dụng web sử dụng Laravel..."
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 focus:bg-white outline-none transition-all resize-none placeholder:text-slate-300">{{ old('description') }}</textarea>
+                </div>
+
+                <hr class="border-slate-100">
+
+                {{-- Section 3: Yêu cầu & Quyền lợi --}}
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="w-6 h-6 rounded-lg bg-amber-500 text-white text-xs font-bold flex items-center justify-center">3</span>
+                        <h4 class="text-sm font-bold text-primary">Yêu cầu & Quyền lợi</h4>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5 ml-0.5">Yêu cầu kỹ năng</label>
+                            <textarea name="requirements" rows="4" placeholder="VD:&#10;- Kiến thức về Laravel, PHP&#10;- Kỹ năng Teamwork tốt"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 focus:bg-white outline-none transition-all resize-none placeholder:text-slate-300">{{ old('requirements') }}</textarea>
                         </div>
-
-                        <div class="space-y-2">
-                            <label class="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
-                                <span class="material-symbols-outlined text-sm">bolt</span>
-                                Yêu cầu kỹ năng
-                            </label>
-                            <textarea name="requirements" rows="4" placeholder="VD:&#10;- Kiến thức về Laravel, PHP&#10;- Kỹ năng Teamwork tốt" class="w-full bg-white border-2 border-slate-100 rounded-2xl px-5 py-4 font-medium text-slate-600 focus:border-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all resize-none min-h-[110px]">{{ old('requirements') }}</textarea>
-                        </div>
-
-                        <div class="space-y-2">
-                            <label class="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
-                                <span class="material-symbols-outlined text-sm">card_giftcard</span>
-                                Quyền lợi & Đãi ngộ
-                            </label>
-                            <textarea name="benefits" rows="3" placeholder="VD: Lương hỗ trợ, cơm trưa, mentor..." class="w-full bg-white border-2 border-slate-100 rounded-2xl px-5 py-4 font-medium text-slate-600 focus:border-primary focus:ring-4 focus:ring-primary/5 outline-none transition-all resize-none min-h-[100px]">{{ old('benefits') }}</textarea>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5 ml-0.5">Quyền lợi & Đãi ngộ</label>
+                            <textarea name="benefits" rows="4" placeholder="VD:&#10;- Lương hỗ trợ 3-5 triệu&#10;- Cơm trưa, mentor 1-1"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 focus:bg-white outline-none transition-all resize-none placeholder:text-slate-300">{{ old('benefits') }}</textarea>
                         </div>
                     </div>
                 </div>
             </div>
 
             {{-- Footer --}}
-            <div class="sticky bottom-0 bg-white/90 backdrop-blur-xl z-30 px-10 py-6 border-t border-slate-100 flex items-center justify-between">
-                <button type="button" onclick="document.getElementById('create-jd-modal').classList.add('hidden')" class="px-6 py-3 text-slate-400 font-black text-[10px] uppercase tracking-widest hover:text-slate-600 transition-colors">
+            <div class="sticky bottom-0 bg-white z-30 px-8 py-5 border-t border-slate-100 flex items-center justify-between">
+                <button type="button" onclick="document.getElementById('create-jd-modal').classList.add('hidden')" class="px-5 py-2.5 text-slate-400 font-semibold text-sm hover:text-slate-600 transition-colors">
                     Hủy bỏ
                 </button>
-                <button type="submit" class="px-12 py-4 bg-primary text-white font-black rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-widest text-xs shadow-2xl shadow-primary/30 flex items-center gap-3">
-                    <span class="material-symbols-outlined">save</span>
-                    Lưu JD & Phân tích
+                <button type="submit" class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-cyan-500 text-white font-bold rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all text-sm shadow-lg shadow-indigo-200/40 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg">save</span>
+                    Lưu JD
                 </button>
             </div>
         </form>
