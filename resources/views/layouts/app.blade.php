@@ -5,17 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'CODE20H') }} | Admin</title>
+        <title>{{ config('app.name', 'Career Tailor') }}</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-
-        <!-- Bootstrap (CDN) -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
-        <!-- Scripts -->
+        <!-- Styles / Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         <style>
@@ -215,60 +207,31 @@
             }
         </style>
     </head>
-    <body class="antialiased">
+    <body class="font-sans antialiased bg-surface text-on-surface selection:bg-primary/10">
+        <div class="min-h-screen">
+            <!-- Sidebar Navigation -->
+            @include('layouts.sidebar')
 
-        <!-- Sidebar -->
-        @include('layouts.navigation')
+            <!-- Top Application Bar -->
+            @include('layouts.topnav')
 
-        <!-- Main Content -->
-        <div class="admin-main">
-            <!-- Top Bar -->
-            <div class="admin-topbar">
-                <div class="page-title">
+            <!-- Main Content Canvas -->
+            <main class="pl-64 pt-16 min-h-screen">
+                <div class="p-8 max-w-7xl mx-auto">
+                    <!-- Heading Section (Optional) -->
                     @if (isset($header))
-                        {{ $header }}
-                    @endif
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    <div class="user-dropdown">
-                        <button class="user-dropdown-btn">
-                            <div class="user-avatar">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
-                            <div style="text-align:left">
-                                <div style="font-size:13px;font-weight:600;color:#1e293b">{{ Auth::user()->name }}</div>
-                                <div style="font-size:11px;color:#94a3b8">{{ Auth::user()->role === 'admin' ? 'Quản trị viên' : 'Thành viên' }}</div>
-                            </div>
-                            <span class="material-symbols-outlined" style="font-size:18px;color:#94a3b8">expand_more</span>
-                        </button>
-                        <div class="user-dropdown-menu">
-                            <a href="{{ route('profile.edit') }}">
-                                <span class="material-symbols-outlined" style="font-size:18px">person</span>
-                                Hồ sơ cá nhân
-                            </a>
-                            <a href="{{ url('/') }}">
-                                <span class="material-symbols-outlined" style="font-size:18px">storefront</span>
-                                Về trang chủ
-                            </a>
-                            <hr style="margin:4px 0;border-color:#e2e8f0">
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="text-danger">
-                                    <span class="material-symbols-outlined" style="font-size:18px">logout</span>
-                                    Đăng xuất
-                                </button>
-                            </form>
+                        <div class="mb-8">
+                            {{ $header }}
                         </div>
-                    </div>
-                </div>
-            </div>
+                    @endif
 
-            <!-- Page Content -->
-            <div class="main-content-scroll">
-                <div class="container-fluid p-0">
+                    <!-- Page Content -->
                     {{ $slot }}
                 </div>
-            </div>
+            </main>
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        <!-- Optional: Floating Action Button (Global or per-page) -->
+        @stack('fab')
     </body>
 </html>

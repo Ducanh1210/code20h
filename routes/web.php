@@ -15,10 +15,26 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('client.index');
-});
+    return view('dashboard');
+})->name('index');
 
-Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    Route::get('/cv-management', function () {
+        return view('client.cv-management');
+    })->name('client.cv-management');
+
+    Route::get('/ai-analysis', function () {
+        return view('client.ai-analysis');
+    })->name('client.ai-analysis');
+
+    Route::get('/roadmap', function () {
+        return view('client.roadmap');
+    })->name('client.roadmap');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
