@@ -52,15 +52,35 @@
 
         <!-- Main Table Area -->
         <div class="glass-card rounded-[2.5rem] shadow-sm border border-white overflow-hidden p-2">
-            <div class="p-8 flex items-center justify-between">
+            <div class="p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
                     <h3 class="text-xl font-black text-slate-900 tracking-tight">Danh sách tài khoản</h3>
                     <p class="text-xs text-slate-400 font-medium">Quản lý và cập nhật thông tin thành viên hệ thống.</p>
                 </div>
-                <a href="{{ route('admin.users.create') }}" class="flex items-center gap-2 px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-bold text-sm shadow-lg shadow-sky-500/25 transition-all active:scale-95">
-                    <span class="material-symbols-outlined">person_add</span>
-                    Thêm người dùng
-                </a>
+
+                <div class="flex flex-col md:flex-row items-center gap-4">
+                    <!-- Search Bar -->
+                    <form action="{{ route('admin.users.index') }}" method="GET" class="flex items-center gap-2">
+                        <div class="relative group">
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-sky-500 transition-colors">search</span>
+                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Tìm tên hoặc email..." 
+                                class="pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-sky-500/20 transition-all font-bold text-slate-900 text-sm w-full md:w-64 placeholder:font-medium">
+                        </div>
+                        <button type="submit" class="p-3 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all active:scale-95">
+                            <span class="material-symbols-outlined">filter_list</span>
+                        </button>
+                        @if(request('search'))
+                            <a href="{{ route('admin.users.index') }}" class="p-3 bg-slate-100 text-slate-500 rounded-2xl hover:bg-slate-200 transition-all active:scale-95" title="Xóa lọc">
+                                <span class="material-symbols-outlined">close</span>
+                            </a>
+                        @endif
+                    </form>
+
+                    <a href="{{ route('admin.users.create') }}" class="flex items-center gap-2 px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-bold text-sm shadow-lg shadow-sky-500/25 transition-all active:scale-95 whitespace-nowrap">
+                        <span class="material-symbols-outlined">person_add</span>
+                        Thêm người dùng
+                    </a>
+                </div>
             </div>
 
             <div class="overflow-x-auto">
@@ -74,7 +94,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-50">
-                        @foreach($users as $user)
+                        @forelse($users as $user)
                         <tr class="group hover:bg-slate-50/50 transition-colors">
                             <td class="px-8 py-5">
                                 <div class="flex items-center gap-4">
@@ -122,7 +142,16 @@
                                 </div>
                             </td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="4" class="px-8 py-20 text-center">
+                                <div class="flex flex-col items-center gap-3">
+                                    <span class="material-symbols-outlined text-slate-200 text-6xl">search_off</span>
+                                    <p class="font-bold text-slate-400 text-sm">Không tìm thấy người dùng nào phù hợp.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
