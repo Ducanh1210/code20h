@@ -16,8 +16,14 @@ class CvController extends Controller
     {
         $query = Cv::where('user_id', Auth::id());
 
-        // Filter by Date Range
-        if ($request->has('date_range')) {
+        // Search by Title/Keywords
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('title', 'like', '%' . $search . '%');
+        }
+
+        // Filter by Date Range (Fixed presets)
+        if ($request->filled('date_range')) {
             if ($request->date_range == '7_days') {
                 $query->where('created_at', '>=', now()->subDays(7));
             } elseif ($request->date_range == '30_days') {
@@ -25,27 +31,39 @@ class CvController extends Controller
             }
         }
 
-        // Filter by Domain/Position
+        // Filter by Specific Date Range
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        // Filter by Domain (Job Position)
         if ($request->filled('domain')) {
             $query->where('title', 'like', '%' . $request->domain . '%');
         }
 
-        // Filter by Status (AI Quality/Match Score Simulator)
-        if ($request->has('status')) {
-            // (Placeholder logic for future analysis)
+        // Sorting Logic
+        $sortBy = $request->get('sort_by', 'latest');
+        switch ($sortBy) {
+            case 'oldest':
+                $query->oldest();
+                break;
+            case 'title_asc':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'title_desc':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'latest':
+            default:
+                $query->latest();
+                break;
         }
 
-        // Search by Title/Keyword
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', '%' . $search . '%');
-            });
-        }
+        $cvs = $query->paginate(9)->withQueryString();
 
-        $cvs = $query->latest()->paginate(9);
-
-        // Map status/icons for the UI View
         return view('client.cv-management', compact('cvs'));
     }
 

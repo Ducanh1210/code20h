@@ -19,30 +19,74 @@
     </x-slot>
 
     <!-- Filters Bar -->
-    <form action="{{ route('client.cv-management') }}" method="GET" class="flex flex-wrap items-center gap-4 mb-8 bg-surface-container-low/50 p-4 rounded-3xl">
-        <div class="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm border border-slate-100 flex-1 min-w-[200px]">
-            <span class="material-symbols-outlined text-slate-400 text-sm">search</span>
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Tìm kiếm theo tiêu đề..." class="bg-transparent border-none text-xs font-bold p-0 w-full focus:ring-0">
-        </div>
-        
-        <div class="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm border border-slate-100">
-            <span class="material-symbols-outlined text-slate-400 text-sm">calendar_today</span>
-            <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Ngày tạo:</span>
-            <select name="date_range" onchange="this.form.submit()" class="bg-transparent border-none text-xs font-bold p-0 pr-8 focus:ring-0">
-                <option value="">Tất cả thời gian</option>
-                <option value="7_days" {{ request('date_range') == '7_days' ? 'selected' : '' }}>7 ngày qua</option>
-                <option value="30_days" {{ request('date_range') == '30_days' ? 'selected' : '' }}>30 ngày qua</option>
-            </select>
-        </div>
+    <div class="bg-surface-container-low/50 p-6 rounded-[2rem] mb-8 border border-white/40 shadow-sm backdrop-blur-md">
+        <form action="{{ route('client.cv-management') }}" method="GET" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Search -->
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Tìm kiếm</label>
+                    <div class="flex items-center gap-2 px-4 py-3 bg-white rounded-2xl shadow-sm border border-slate-100 transition-all focus-within:ring-2 focus-within:ring-primary/10">
+                        <span class="material-symbols-outlined text-slate-400 text-sm">search</span>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Tên CV, từ khóa..." class="bg-transparent border-none text-xs font-bold p-0 w-full focus:ring-0">
+                    </div>
+                </div>
 
-        <button type="submit" class="p-2.5 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors">
-            <span class="material-symbols-outlined">filter_list</span>
-        </button>
+                <!-- Job Position / Domain -->
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Vị trí công việc</label>
+                    <div class="flex items-center gap-2 px-4 py-3 bg-white rounded-2xl shadow-sm border border-slate-100 transition-all focus-within:ring-2 focus-within:ring-primary/10">
+                        <span class="material-symbols-outlined text-slate-400 text-sm">work</span>
+                        <input type="text" name="domain" value="{{ request('domain') }}" placeholder="VD: UI/UX, Dev..." class="bg-transparent border-none text-xs font-bold p-0 w-full focus:ring-0">
+                    </div>
+                </div>
 
-        <div class="ml-auto text-[10px] font-black text-slate-400 uppercase tracking-widest">
-            Hiển thị <span class="text-primary">{{ $cvs->total() }}</span> hồ sơ
-        </div>
-    </form>
+                <!-- Date Range -->
+                <div class="space-y-1 lg:col-span-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Khoảng thời gian</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="flex items-center gap-2 px-3 py-3 bg-white rounded-2xl shadow-sm border border-slate-100">
+                            <input type="date" name="date_from" value="{{ request('date_from') }}" class="bg-transparent border-none text-[10px] font-bold p-0 w-full focus:ring-0 uppercase">
+                        </div>
+                        <div class="flex items-center gap-2 px-3 py-3 bg-white rounded-2xl shadow-sm border border-slate-100">
+                            <input type="date" name="date_to" value="{{ request('date_to') }}" class="bg-transparent border-none text-[10px] font-bold p-0 w-full focus:ring-0 uppercase">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sorting -->
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Sắp xếp theo</label>
+                    <div class="flex items-center gap-2 px-4 py-3 bg-white rounded-2xl shadow-sm border border-slate-100 appearance-none">
+                        <span class="material-symbols-outlined text-slate-400 text-sm">swap_vert</span>
+                        <select name="sort_by" class="bg-transparent border-none text-xs font-bold p-0 w-full focus:ring-0 appearance-none">
+                            <option value="latest" {{ request('sort_by') == 'latest' ? 'selected' : '' }}>Mới nhất</option>
+                            <option value="oldest" {{ request('sort_by') == 'oldest' ? 'selected' : '' }}>Cũ nhất</option>
+                            <option value="title_asc" {{ request('sort_by') == 'title_asc' ? 'selected' : '' }}>Tên A-Z</option>
+                            <option value="title_desc" {{ request('sort_by') == 'title_desc' ? 'selected' : '' }}>Tên Z-A</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-2 border-t border-white/40 mt-4">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    Tìm thấy <span class="text-primary">{{ $cvs->total() }}</span> hồ sơ phù hợp
+                </div>
+                <div class="flex gap-2">
+                    @if(request()->anyFilled(['search', 'domain', 'date_from', 'date_to', 'sort_by', 'date_range']))
+                        <a href="{{ route('client.cv-management') }}" class="flex items-center gap-2 px-5 py-2.5 bg-slate-100 text-slate-500 font-bold rounded-xl hover:bg-slate-200 transition-all uppercase text-[10px] tracking-widest">
+                            <span class="material-symbols-outlined text-sm">close</span>
+                            Xóa lọc
+                        </a>
+                    @endif
+                    <button type="submit" class="flex items-center gap-2 px-8 py-2.5 bg-primary text-white font-black rounded-xl hover:shadow-xl transition-all uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20">
+                        <span class="material-symbols-outlined text-sm">filter_alt</span>
+                        Áp dụng
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
 
     <!-- CV Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
