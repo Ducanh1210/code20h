@@ -8,24 +8,18 @@ use Illuminate\Support\Facades\Auth;
 
 class JobDescriptionController extends Controller
 {
-    /**
-     * Display a listing of Job Descriptions.
-     */
     public function index(Request $request)
     {
         $query = JobDescription::query();
 
-        // For employers, show their own. For others (admin/candidate), show all.
         if (Auth::user()->role === 'employer') {
             $query->where('employer_id', Auth::id());
         }
 
-        // Search by Title
         if ($request->filled('search')) {
             $query->where('title', 'like', '%' . $request->search . '%');
         }
 
-        // Filter by Domain
         if ($request->filled('domain')) {
             $query->where('domain', 'like', '%' . $request->domain . '%');
         }
@@ -35,56 +29,42 @@ class JobDescriptionController extends Controller
         return view('client.jobs', compact('jds'));
     }
 
-    /**
-     * Store a newly created Job Description.
-     */
     public function store(Request $request)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
+        $validated = $request->validate([
+            'company_name' => 'required|string|max:255',
+            'title'        => 'required|string|max:255',
+            'domain'       => 'nullable|string|max:100',
+            'description'  => 'nullable|string',
             'requirements' => 'nullable|string',
-            'domain' => 'nullable|string|max:100',
+            'benefits'     => 'nullable|string',
         ]);
 
-        JobDescription::create([
-            'employer_id' => Auth::id(),
-            'title' => $request->title,
-            'description' => $request->description,
-            'requirements' => explode("\n", $request->requirements), // Basic parsing
-            'domain' => $request->domain,
-        ]);
+        $validated['employer_id'] = Auth::id();
 
-        return redirect()->route('client.jobs')->with('success', 'Mô tả công việc đã được lưu.');
+        JobDescription::create($validated);
+
+        return redirect()->route('client.jobs')->with('success', 'Mô tả công việc đã được lưu thành công.');
     }
 
-    /**
-     * Update an existing Job Description.
-     */
     public function update(Request $request, JobDescription $jd)
     {
         $this->authorizeEmployer($jd);
 
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
+        $validated = $request->validate([
+            'company_name' => 'required|string|max:255',
+            'title'        => 'required|string|max:255',
+            'domain'       => 'nullable|string|max:100',
+            'description'  => 'nullable|string',
             'requirements' => 'nullable|string',
-            'domain' => 'nullable|string|max:100',
+            'benefits'     => 'nullable|string',
         ]);
 
-        $jd->update([
-            'title' => $request->title,
-            'description' => $request->description,
-            'requirements' => explode("\n", $request->requirements),
-            'domain' => $request->domain,
-        ]);
+        $jd->update($validated);
 
         return redirect()->route('client.jobs')->with('success', 'Mô tả công việc đã được cập nhật.');
     }
 
-    /**
-     * Remove the specified Job Description.
-     */
     public function destroy(JobDescription $jd)
     {
         $this->authorizeEmployer($jd);
@@ -93,9 +73,6 @@ class JobDescriptionController extends Controller
         return redirect()->route('client.jobs')->with('success', 'Mô tả công việc đã được xóa.');
     }
 
-    /**
-     * Ensure the logged-in user is an employer and owns the JD.
-     */
     protected function authorizeEmployer(JobDescription $jd)
     {
         if (Auth::user()->role !== 'employer' && Auth::user()->role !== 'admin') {
