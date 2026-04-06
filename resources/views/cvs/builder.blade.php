@@ -85,10 +85,13 @@
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <span id="save-status" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest opacity-0 transition-opacity">Đã lưu</span>
-                    <button @click="saveCv()" class="px-6 py-2 bg-primary text-white font-black rounded-xl hover:shadow-lg transition-all uppercase text-xs tracking-widest flex items-center gap-2">
-                        <span class="material-symbols-outlined text-sm">save</span>
-                        Lưu hồ sơ
+                    <span id="save-status" class="flex items-center gap-1 text-[9px] font-black text-emerald-500 uppercase tracking-tighter opacity-0 transition-all">
+                        <span id="save-status-icon" class="material-symbols-outlined text-xs">done</span>
+                        <span id="save-status-text">Đã lưu</span>
+                    </span>
+                    <button @click="saveCv()" class="px-4 py-1.5 bg-primary text-white font-black rounded-full hover:shadow-md active:scale-95 transition-all uppercase text-[10px] tracking-widest flex items-center gap-2 group">
+                        <span class="material-symbols-outlined text-[16px] group-hover:rotate-12 transition-transform">save</span>
+                        <span>Lưu</span>
                     </button>
                 </div>
             </div>
@@ -550,8 +553,17 @@
 
                 saveCv() {
                     const status = document.getElementById('save-status');
+                    const statusText = document.getElementById('save-status-text');
+                    const statusIcon = document.getElementById('save-status-icon');
+                    
                     if(status) {
-                        status.innerText = 'Đang lưu...';
+                        status.classList.remove('text-emerald-500');
+                        status.classList.add('text-blue-500');
+                        if(statusText) statusText.innerText = 'Đang lưu...';
+                        if(statusIcon) {
+                            statusIcon.innerText = 'sync';
+                            statusIcon.classList.add('animate-spin');
+                        }
                         status.classList.remove('opacity-0');
                     }
 
@@ -566,8 +578,14 @@
                     .then(r => r.json())
                     .then(() => {
                         if(status) {
-                            status.innerText = 'Đã lưu';
-                            setTimeout(() => status.classList.add('opacity-0'), 1500);
+                            status.classList.remove('text-blue-500');
+                            status.classList.add('text-emerald-500');
+                            if(statusText) statusText.innerText = 'Đã lưu';
+                            if(statusIcon) {
+                                statusIcon.innerText = 'done';
+                                statusIcon.classList.remove('animate-spin');
+                            }
+                            setTimeout(() => status.classList.add('opacity-0'), 2000);
                         }
                     });
                 },
