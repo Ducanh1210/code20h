@@ -2,111 +2,244 @@
     <x-slot name="header">
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div class="space-y-1">
-                <h2 class="text-3xl font-extrabold tracking-tight text-primary">Quản lý CV</h2>
+                <h2 class="text-3xl font-extrabold tracking-tight text-primary uppercase">Quản lý Hồ sơ</h2>
                 <p class="text-slate-500 text-lg">Tối ưu hóa hành trình sự nghiệp với trợ lý AI chuyên nghiệp.</p>
             </div>
             <div class="flex items-center gap-3">
-                <button class="flex items-center gap-2 px-5 py-2.5 bg-white border border-outline-variant/30 text-primary font-semibold rounded-xl hover:bg-slate-50 transition-all shadow-sm">
+                <button onclick="document.getElementById('upload-modal').classList.remove('hidden')" class="flex items-center gap-2 px-5 py-2.5 bg-white border border-outline-variant/30 text-primary font-bold rounded-xl hover:bg-slate-50 transition-all shadow-sm uppercase text-xs tracking-widest">
                     <span class="material-symbols-outlined text-xl">upload</span>
                     Tải CV lên
                 </button>
-                <button class="flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-bold rounded-xl hover:shadow-xl transition-all">
+                <a href="{{ route('client.cv-templates') }}" class="flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-black rounded-xl hover:shadow-xl transition-all uppercase text-xs tracking-widest">
                     <span class="material-symbols-outlined text-xl">add</span>
-                    Tạo CV mới
-                </button>
+                    Viết CV mới
+                </a>
             </div>
         </div>
     </x-slot>
 
     <!-- Filters Bar -->
-    <div class="flex flex-wrap items-center gap-4 mb-8 bg-surface-container-low/50 p-4 rounded-3xl">
+    <form action="{{ route('client.cv-management') }}" method="GET" class="flex flex-wrap items-center gap-4 mb-8 bg-surface-container-low/50 p-4 rounded-3xl">
+        <div class="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm border border-slate-100 flex-1 min-w-[200px]">
+            <span class="material-symbols-outlined text-slate-400 text-sm">search</span>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Tìm kiếm theo tiêu đề..." class="bg-transparent border-none text-xs font-bold p-0 w-full focus:ring-0">
+        </div>
+        
         <div class="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm border border-slate-100">
             <span class="material-symbols-outlined text-slate-400 text-sm">calendar_today</span>
-            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Ngày tạo:</span>
-            <select class="bg-transparent border-none text-xs font-bold p-0 pr-6 focus:ring-0">
-                <option>Tất cả thời gian</option>
-                <option>7 ngày qua</option>
-                <option>30 ngày qua</option>
+            <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Ngày tạo:</span>
+            <select name="date_range" onchange="this.form.submit()" class="bg-transparent border-none text-xs font-bold p-0 pr-8 focus:ring-0">
+                <option value="">Tất cả thời gian</option>
+                <option value="7_days" {{ request('date_range') == '7_days' ? 'selected' : '' }}>7 ngày qua</option>
+                <option value="30_days" {{ request('date_range') == '30_days' ? 'selected' : '' }}>30 ngày qua</option>
             </select>
         </div>
-        <div class="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm border border-slate-100">
-            <span class="material-symbols-outlined text-slate-400 text-sm">filter_list</span>
-            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Vị trí:</span>
-            <select class="bg-transparent border-none text-xs font-bold p-0 pr-6 focus:ring-0">
-                <option>Tất cả công việc</option>
-                <option>Product Manager</option>
-                <option>UI/UX Designer</option>
-                <option>Software Engineer</option>
-            </select>
+
+        <button type="submit" class="p-2.5 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors">
+            <span class="material-symbols-outlined">filter_list</span>
+        </button>
+
+        <div class="ml-auto text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            Hiển thị <span class="text-primary">{{ $cvs->total() }}</span> hồ sơ
         </div>
-        <div class="ml-auto text-xs font-bold text-slate-500 uppercase tracking-widest">
-            Hiển thị <span class="text-primary">06</span> bản thảo CV
-        </div>
-    </div>
+    </form>
 
     <!-- CV Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Card 1: Featured CV -->
-        <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-outline-variant/10 hover:shadow-xl transition-all group flex flex-col">
-            <div class="flex justify-between items-start mb-6">
-                <div class="w-12 h-16 bg-primary/5 rounded-xl flex items-center justify-center">
-                    <span class="material-symbols-outlined text-primary text-3xl">description</span>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        @forelse($cvs as $cv)
+            <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-outline-variant/10 hover:shadow-2xl hover:shadow-primary/5 transition-all group flex flex-col relative overflow-hidden">
+                @if($cv->is_uploaded)
+                    <div class="absolute -right-4 -top-4 w-20 h-20 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+                @endif
+                
+                <div class="flex justify-between items-start mb-8 relative z-10">
+                    <div class="w-14 h-14 {{ $cv->is_uploaded ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600' }} rounded-2xl flex items-center justify-center shadow-sm">
+                        <span class="material-symbols-outlined text-3xl italic">
+                            {{ $cv->is_uploaded ? 'upload_file' : 'edit_document' }}
+                        </span>
+                    </div>
+                    <div class="flex flex-col items-end gap-2">
+                        <span class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-black rounded-full uppercase tracking-tighter">SẴN SÀNG</span>
+                        <div class="relative inline-block text-left" x-data="{ open: false }">
+                            <button @click="open = !open" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors">
+                                <span class="material-symbols-outlined text-slate-400">more_vert</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex flex-col items-end gap-2">
-                    <span class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-extrabold rounded-full uppercase tracking-tight">Khớp 92%</span>
-                    <button class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors">
-                        <span class="material-symbols-outlined text-slate-400">more_vert</span>
+
+                <div class="mb-8 relative z-10">
+                    <h3 class="text-xl font-bold text-primary mb-2 group-hover:text-secondary transition-colors headline leading-tight">{{ $cv->title }}</h3>
+                    <div class="flex items-center gap-4">
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-sm">schedule</span>
+                            {{ $cv->created_at->diffForHumans() }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-6 flex items-center justify-between border-t border-slate-50 relative z-10">
+                    <button onclick="viewCv({{ $cv->id }}, '{{ addslashes($cv->title) }}', '{{ $cv->is_uploaded ? 'File Đã Tải Lên' : addslashes($cv->content['text'] ?? '') }}')" class="text-primary font-black text-[10px] flex items-center gap-2 group/btn uppercase tracking-widest">
+                        Chi tiết hồ sơ
+                        <span class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
                     </button>
+                    <div class="flex items-center gap-2">
+                        @if(!$cv->is_uploaded)
+                            <a href="{{ route('client.cv-builder', $cv) }}" class="text-slate-300 hover:text-secondary transition-colors">
+                                <span class="material-symbols-outlined text-xl">edit</span>
+                            </a>
+                        @endif
+                        <form action="{{ route('client.cv-management.destroy', $cv) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa hồ sơ này?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-slate-300 hover:text-error transition-colors">
+                                <span class="material-symbols-outlined text-xl">delete</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
-            <div class="mb-6">
-                <h3 class="text-xl font-bold text-primary mb-1 group-hover:text-secondary transition-colors headline">Senior Product Designer</h3>
-                <p class="text-slate-400 text-xs flex items-center gap-1">
-                    <span class="material-symbols-outlined text-xs">schedule</span>
-                    Cập nhật 2 giờ trước
-                </p>
-            </div>
-            <div class="flex items-center gap-2 mb-8 flex-wrap">
-                <span class="px-2 py-1 bg-surface-container text-slate-600 text-[10px] font-bold uppercase rounded-lg">Figma</span>
-                <span class="px-2 py-1 bg-surface-container text-slate-600 text-[10px] font-bold uppercase rounded-lg">AI Integration</span>
-            </div>
-            <div class="mt-auto pt-4 flex items-center justify-between border-t border-slate-50">
-                <button class="text-primary font-bold text-xs flex items-center gap-2 group/btn uppercase tracking-wider">
-                    Xem chi tiết
-                    <span class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
+        @empty
+            <div class="col-span-full py-20 flex flex-col items-center justify-center text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-100">
+                <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-5xl text-slate-200">folder_off</span>
+                </div>
+                <h3 class="text-2xl font-bold text-primary mb-2">Chưa có hồ sơ nào</h3>
+                <p class="text-slate-400 text-sm max-w-xs mx-auto mb-8">Bắt đầu bằng cách tạo mới hoặc tải CV của bạn lên để AI có thể giúp bạn tối ưu.</p>
+                <button onclick="document.getElementById('create-modal').classList.remove('hidden')" class="px-8 py-4 bg-primary text-white font-black rounded-2xl hover:scale-105 transition-transform uppercase text-xs tracking-widest shadow-xl shadow-primary/20">
+                    Tạo hồ sơ ngay
                 </button>
-                <div class="flex -space-x-2">
-                    <div class="w-7 h-7 rounded-full bg-secondary-fixed text-secondary flex items-center justify-center text-[10px] font-bold border-2 border-white uppercase">AI</div>
-                    <div class="w-7 h-7 rounded-full bg-tertiary-fixed text-tertiary flex items-center justify-center text-[10px] font-bold border-2 border-white uppercase">DS</div>
+            </div>
+        @endforelse
+    </div>
+
+    <!-- Modals (Simple Hidden Divs for now) -->
+    <!-- Create Modal -->
+    <div id="create-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl p-10 relative animate-fade-in">
+            <button onclick="document.getElementById('create-modal').classList.add('hidden')" class="absolute right-6 top-6 text-slate-400 hover:text-primary transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <h3 class="text-2xl font-bold text-primary mb-2 italic">Tạo hồ sơ trực tuyến</h3>
+            <p class="text-slate-500 mb-8 font-medium">Nhập tiêu đề và nội dung kinh nghiệm để AI phân tích.</p>
+            
+            <form action="{{ route('client.cv-management.store') }}" method="POST" class="space-y-6">
+                @csrf
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">Tiêu đề hồ sơ</label>
+                    <input type="text" name="title" required placeholder="VD: Senior Frontend Developer - React" class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 font-bold text-primary focus:ring-2 focus:ring-primary/20 outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">Nội dung chi tiết</label>
+                    <textarea name="manual_content" rows="6" placeholder="Tóm tắt kinh nghiệm, kỹ năng và các dự án của bạn..." class="w-full bg-slate-50 border-none rounded-3xl px-6 py-4 font-medium text-slate-600 focus:ring-2 focus:ring-primary/20 outline-none"></textarea>
+                </div>
+                <button type="submit" class="w-full py-5 bg-primary text-white font-black rounded-2xl hover:brightness-110 transition-all uppercase tracking-[0.2em] text-xs shadow-xl shadow-primary/30">
+                    Lưu & Phân tích với AI
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl p-10 relative animate-fade-in">
+            <button onclick="document.getElementById('edit-modal').classList.add('hidden')" class="absolute right-6 top-6 text-slate-400 hover:text-primary transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <h3 class="text-2xl font-bold text-primary mb-2 italic underline underline-offset-4 decoration-secondary/30">Chỉnh sửa hồ sơ</h3>
+            <p class="text-slate-500 mb-8 font-medium">Cập nhật thông tin để AI đưa ra ý kiến chính xác nhất.</p>
+            
+            <form id="edit-cv-form" method="POST" class="space-y-6">
+                @csrf
+                @method('PATCH')
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">Tiêu đề hồ sơ</label>
+                    <input type="text" id="edit-title" name="title" required class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 font-bold text-primary focus:ring-2 focus:ring-primary/20 outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">Nội dung chi tiết</label>
+                    <textarea id="edit-content" name="manual_content" rows="6" class="w-full bg-slate-50 border-none rounded-3xl px-6 py-4 font-medium text-slate-600 focus:ring-2 focus:ring-primary/20 outline-none"></textarea>
+                </div>
+                <button type="submit" class="w-full py-5 bg-secondary text-white font-black rounded-2xl hover:brightness-110 transition-all uppercase tracking-[0.2em] text-xs shadow-xl shadow-secondary/30">
+                    Cập nhật thay đổi
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Modal (Details) -->
+    <div id="view-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-3xl rounded-[3rem] shadow-2xl p-12 relative animate-fade-in overflow-hidden">
+            <div class="absolute -right-20 -top-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
+            <button onclick="document.getElementById('view-modal').classList.add('hidden')" class="absolute right-8 top-8 text-slate-400 hover:text-primary transition-colors z-20">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            
+            <div class="relative z-10">
+                <span class="text-[10px] font-black text-secondary-fixed bg-secondary/10 px-3 py-1 rounded-full uppercase tracking-widest mb-4 inline-block">Hồ sơ chi tiết</span>
+                <h3 id="view-title" class="text-3xl font-black text-primary mb-6 headline leading-tight"></h3>
+                <div class="prose prose-slate max-w-none">
+                    <p id="view-content" class="text-slate-600 leading-relaxed whitespace-pre-wrap font-medium bg-surface-container-low/30 p-6 rounded-3xl border border-slate-50 italic"></p>
+                </div>
+                <div class="mt-10 flex gap-4">
+                    <button class="px-8 py-3 bg-primary text-white font-black rounded-xl text-xs uppercase tracking-widest hover:shadow-lg transition-all">Phân tích AI</button>
+                    <button onclick="document.getElementById('view-modal').classList.add('hidden')" class="px-8 py-3 bg-slate-100 text-slate-500 font-bold rounded-xl text-xs uppercase tracking-widest hover:bg-slate-200 transition-all">Đóng</button>
                 </div>
             </div>
         </div>
-
-        <!-- Add New Action Card -->
-        <button class="border-2 border-dashed border-outline-variant/30 rounded-[2rem] p-6 flex flex-col items-center justify-center text-slate-400 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all group min-h-[280px]">
-            <div class="w-16 h-16 rounded-full bg-slate-50 group-hover:bg-primary/10 flex items-center justify-center mb-4 transition-colors">
-                <span class="material-symbols-outlined text-3xl">add_circle</span>
-            </div>
-            <h3 class="font-bold text-lg text-primary">Tạo bản nháp mới</h3>
-            <p class="text-xs font-bold uppercase tracking-widest mt-1 opacity-60">Tối ưu cho vị trí cụ thể</p>
-        </button>
     </div>
 
-    <!-- Bottom Tip Section -->
-    <div class="mt-12 p-8 bg-gradient-to-br from-primary to-secondary rounded-[2.5rem] text-white relative overflow-hidden">
-        <div class="absolute right-0 top-0 w-1/3 h-full opacity-10 pointer-events-none">
-            <span class="material-symbols-outlined text-[200px]">auto_awesome</span>
-        </div>
-        <div class="relative z-10 max-w-2xl">
-            <h4 class="text-2xl font-bold mb-4">Gợi ý từ AI: Tăng khả năng trúng tuyển</h4>
-            <p class="text-blue-100 mb-6 leading-relaxed">
-                Bạn có <span class="font-bold text-white underline decoration-2 underline-offset-4">3 CV</span> đã hơn 6 tháng chưa cập nhật. Các công ty thường đánh giá cao những ứng viên cập nhật liên tục.
-            </p>
-            <div class="flex items-center gap-4">
-                <button class="px-6 py-2.5 bg-white text-primary font-extrabold rounded-xl hover:shadow-lg transition-all text-xs uppercase tracking-widest">
-                    Cập nhật ngay
+    <!-- JS Logic for Dynamic Modals -->
+    <script>
+        function editCv(id, title, content) {
+            const form = document.getElementById('edit-cv-form');
+            form.action = `/cv-management/${id}`;
+            document.getElementById('edit-title').value = title;
+            document.getElementById('edit-content').value = content;
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+
+        function viewCv(id, title, content) {
+            document.getElementById('view-title').innerText = title;
+            document.getElementById('view-content').innerText = content;
+            document.getElementById('view-modal').classList.remove('hidden');
+        }
+    </script>
+
+
+    <!-- Upload Modal -->
+    <div id="upload-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-xl rounded-[2.5rem] shadow-2xl p-10 relative animate-fade-in">
+            <button onclick="document.getElementById('upload-modal').classList.add('hidden')" class="absolute right-6 top-6 text-slate-400 hover:text-primary transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <h3 class="text-2xl font-bold text-primary mb-2 italic">Tải lên hồ sơ (PDF/DOCX)</h3>
+            <p class="text-slate-500 mb-8 font-medium">Chọn file CV có sẵn của bạn từ máy tính.</p>
+            
+            <form action="{{ route('client.cv-management.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                @csrf
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">Tiêu đề hồ sơ</label>
+                    <input type="text" name="title" required placeholder="VD: CV - Nguyễn Văn A - Java Dev" class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 font-bold text-primary focus:ring-2 focus:ring-primary/20">
+                </div>
+                <div class="border-2 border-dashed border-slate-100 rounded-3xl p-10 flex flex-col items-center justify-center bg-slate-50 relative group hover:border-primary/30 transition-colors">
+                    <input type="file" name="cv_file" required class="absolute inset-0 opacity-0 cursor-pointer">
+                    <span class="material-symbols-outlined text-5xl text-slate-200 group-hover:text-primary transition-colors mb-4">cloud_upload</span>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Kéo thả hoặc Click để chọn file</p>
+                    <p class="text-[10px] text-slate-400 mt-2">Hỗ trợ PDF, DOCX (Tối đa 10MB)</p>
+                </div>
+                <button type="submit" class="w-full py-5 bg-primary text-white font-black rounded-2xl hover:brightness-110 transition-all uppercase tracking-[0.2em] text-xs shadow-xl shadow-primary/30">
+                    Bắt đầu Tải lên
                 </button>
-            </div>
+            </form>
         </div>
     </div>
+
+    <style>
+        @keyframes fade-in {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fade-in { animation: fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    </style>
 </x-app-layout>

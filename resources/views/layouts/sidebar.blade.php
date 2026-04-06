@@ -15,14 +15,14 @@
         <a class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('client.cv-management') ? 'bg-primary text-white scale-95 shadow-lg shadow-primary/20' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/50' }} rounded-xl mx-2 duration-150 transition-all font-medium" 
            href="{{ route('client.cv-management') }}">
             <span class="material-symbols-outlined">description</span>
-            <span>Quản lý CV</span>
+            <span>Hồ sơ của tôi</span>
         </a>
 
         <!-- Jobs -->
         <a class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('client.jobs') ? 'bg-primary text-white scale-95 shadow-lg shadow-primary/20' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/50' }} rounded-xl mx-2 duration-150 transition-all font-medium" 
-           href="#">
+           href="{{ route('client.jobs') }}">
             <span class="material-symbols-outlined">work</span>
-            <span>Việc làm</span>
+            <span>Danh sách JD</span>
         </a>
 
         <!-- AI Analysis -->
@@ -35,7 +35,7 @@
         <!-- Learning Path -->
         <a class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('client.roadmap') ? 'bg-primary text-white scale-95 shadow-lg shadow-primary/20' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/50' }} rounded-xl mx-2 duration-150 transition-all font-medium" 
            href="{{ route('client.roadmap') }}">
-            <span class="material-symbols-outlined">alt_route</span>
+            <span class="material-symbols-outlined">model_training</span>
             <span>Lộ trình học</span>
         </a>
     </nav>

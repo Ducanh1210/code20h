@@ -18,14 +18,28 @@ Route::get('/', function () {
     return view('dashboard');
 })->name('index');
 
+use App\Http\Controllers\CvController;
+use App\Http\Controllers\JobDescriptionController;
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
 
-    Route::get('/cv-management', function () {
-        return view('client.cv-management');
-    })->name('client.cv-management');
+    // CV Management
+    Route::get('/cv-management', [CvController::class, 'index'])->name('client.cv-management');
+    Route::get('/cv-templates', [CvController::class, 'templates'])->name('client.cv-templates');
+    Route::post('/cv-management', [CvController::class, 'store'])->name('client.cv-management.store');
+    Route::post('/cv-templates/select', [CvController::class, 'storeWithTemplate'])->name('client.cv-templates.select');
+    Route::get('/cv-builder/{cv}', [CvController::class, 'builder'])->name('client.cv-builder');
+    Route::patch('/cv-builder/{cv}', [CvController::class, 'saveBuilder'])->name('client.cv-builder.save');
+    Route::delete('/cv-management/{cv}', [CvController::class, 'destroy'])->name('client.cv-management.destroy');
+    Route::patch('/cv-management/{cv}', [CvController::class, 'update'])->name('client.cv-management.update');
+
+    // Job Description Management
+    Route::get('/jobs', [JobDescriptionController::class, 'index'])->name('client.jobs');
+    Route::post('/jobs', [JobDescriptionController::class, 'store'])->name('client.jobs.store');
+    Route::delete('/jobs/{jd}', [JobDescriptionController::class, 'destroy'])->name('client.jobs.destroy');
 
     Route::get('/ai-analysis', function () {
         return view('client.ai-analysis');
