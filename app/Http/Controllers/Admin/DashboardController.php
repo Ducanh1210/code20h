@@ -3,18 +3,28 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
 use App\Models\User;
+use App\Models\Cv;
+use App\Models\JobDescription;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $totalUsers = User::count();
-        $recentUsers = User::where('role', 'user')->orderBy('created_at', 'desc')->take(5)->get();
-        $adminCount = User::where('role', 'admin')->count();
+        $stats = [
+            'total_users' => User::count(),
+            'total_cvs' => Cv::count(),
+            'total_jobs' => JobDescription::count(),
+            'admin_count' => User::where('role', 'admin')->count(),
+            'employer_count' => User::where('role', 'employer')->count(),
+            'candidate_count' => User::where('role', 'candidate')->count(),
+            'new_users_today' => User::whereDate('created_at', today())->count(),
+        ];
 
-        return view('dashboard', compact('totalUsers', 'recentUsers', 'adminCount'));
+        // Fetch recent activities or users if needed for the view
+        $recentUsers = User::latest()->take(5)->get();
+
+        return view('admin.dashboard', compact('stats', 'recentUsers'));
     }
 }

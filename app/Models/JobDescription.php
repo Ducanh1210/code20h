@@ -12,14 +12,12 @@ class JobDescription extends Model
 
     protected $fillable = [
         'employer_id',
+        'company_name',
         'title',
+        'domain',
         'description',
         'requirements',
-        'domain',
-    ];
-
-    protected $casts = [
-        'requirements' => 'array',
+        'benefits',
     ];
 
     public function employer(): BelongsTo

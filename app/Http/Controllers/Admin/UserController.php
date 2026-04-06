@@ -10,9 +10,6 @@ use Illuminate\Validation\Rules;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         $query = User::query();
@@ -23,7 +20,7 @@ class UserController extends Controller
                   ->orWhere('email', 'like', "%{$search}%");
         }
 
-        $users = $query->paginate(10)->withQueryString();
+        $users = $query->latest()->paginate(10)->withQueryString();
 
         return view('admin.users.index', compact('users'));
     }
@@ -45,7 +42,7 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'string', 'in:user,admin'],
+            'role' => ['required', 'in:candidate,employer,admin'],
         ]);
 
         User::create([
@@ -55,7 +52,8 @@ class UserController extends Controller
             'role' => $request->role,
         ]);
 
-        return redirect()->route('admin.users.index')->with('success', 'Thêm người dùng thành công.');
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Đã thêm người dùng mới thành công!');
     }
 
     /**
@@ -82,12 +80,14 @@ class UserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
+            'role' => ['required', 'in:candidate,employer,admin'],
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $data = [
             'name' => $request->name,
             'email' => $request->email,
+            'role' => $request->role,
         ];
 
         if ($request->filled('password')) {
@@ -96,6 +96,22 @@ class UserController extends Controller
 
         $user->update($data);
 
-        return redirect()->route('admin.users.index')->with('success', 'Cập nhật người dùng thành công.');
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Đã cập nhật thông tin người dùng!');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'Bạn không thể tự xóa chính mình!');
+        }
+
+        $user->delete();
+
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Đã xóa người dùng thành công!');
     }
 }

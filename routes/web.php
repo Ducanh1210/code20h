@@ -39,6 +39,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Job Description Management
     Route::get('/jobs', [JobDescriptionController::class, 'index'])->name('client.jobs');
     Route::post('/jobs', [JobDescriptionController::class, 'store'])->name('client.jobs.store');
+    Route::patch('/jobs/{jd}', [JobDescriptionController::class, 'update'])->name('client.jobs.update');
     Route::delete('/jobs/{jd}', [JobDescriptionController::class, 'destroy'])->name('client.jobs.destroy');
 
     Route::get('/ai-analysis', function () {
@@ -57,9 +58,14 @@ Route::middleware('auth')->group(function () {
 });
 
 // Admin Routes
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
-    Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
-    Route::resource('users', \App\Http\Controllers\Admin\UserController::class)->except(['destroy']);
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\JobDescriptionController as AdminJobDescriptionController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::resource('users', UserController::class);
+    Route::resource('jobs', AdminJobDescriptionController::class)->parameters(['jobs' => 'job:id']);
 });
 
 require __DIR__.'/auth.php';

@@ -1,68 +1,76 @@
-<x-app-layout>
+<x-admin-layout>
     <x-slot name="header">
-        <div class="d-flex justify-content-between align-items-center">
-            <h2 class="h4 mb-0 fw-bold text-dark">
-                {{ __('Chi tiết thành viên') }} 👤
-            </h2>
-            <a href="{{ route('admin.users.index') }}" class="btn btn-light px-4 fw-bold">
-                {{ __('Quay lại') }}
-            </a>
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-sky-500">person</span>
+            <span>Chi tiết tài khoản: {{ $user->name }}</span>
         </div>
     </x-slot>
 
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                <div class="card-header bg-primary py-4 px-5">
-                    <div class="d-flex align-items-center">
-                        <div class="rounded-pill bg-white text-primary d-flex align-items-center justify-content-center fw-bold me-4 shadow" style="width: 80px; height: 80px; font-size: 32px;">
-                            {{ strtoupper(substr($user->name, 0, 1)) }}
-                        </div>
-                        <div class="text-white">
-                            <h3 class="fw-bold mb-1">{{ $user->name }}</h3>
-                            <p class="mb-0 opacity-75">{{ $user->email }}</p>
-                        </div>
+    <div class="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div class="glass-card rounded-[2.5rem] shadow-sm border border-white overflow-hidden p-10">
+            <div class="mb-10 flex items-center gap-6">
+                <div class="w-24 h-24 rounded-[2.5rem] bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center font-black text-slate-400 text-4xl border-4 border-white shadow-xl">
+                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                </div>
+                <div>
+                    <h3 class="text-3xl font-black text-slate-900 tracking-tight">{{ $user->name }}</h3>
+                    <p class="text-sm text-slate-400 font-medium">Thành viên hệ thống từ {{ $user->created_at->translatedFormat('d M, Y') }}</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-1">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">ID Tài khoản</p>
+                    <div class="p-4 bg-slate-50 rounded-2xl font-bold text-slate-900 border border-white">
+                        #{{ $user->id }}
                     </div>
                 </div>
-                <div class="card-body p-5">
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <div class="p-4 bg-light rounded-4 border-0">
-                                <label class="small fw-bold text-uppercase text-secondary d-block mb-2" style="letter-spacing: 1px;">ID tài khoản</label>
-                                <p class="h5 fw-bold text-dark mb-0">#{{ $user->id }}</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="p-4 bg-light rounded-4 border-0">
-                                <label class="small fw-bold text-uppercase text-secondary d-block mb-2" style="letter-spacing: 1px;">Vai trò hệ thống</label>
-                                @if($user->role === 'admin')
-                                    <span class="badge bg-dark fs-6 rounded-pill px-3">Quản trị viên</span>
-                                @else
-                                    <span class="badge bg-primary fs-6 rounded-pill px-3">Thành viên</span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="p-4 bg-light rounded-4 border-0">
-                                <label class="small fw-bold text-uppercase text-secondary d-block mb-2" style="letter-spacing: 1px;">Ngày tham gia</label>
-                                <p class="h5 fw-bold text-dark mb-0">{{ $user->created_at->format('d/m/Y H:i') }}</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="p-4 bg-light rounded-4 border-0">
-                                <label class="small fw-bold text-uppercase text-secondary d-block mb-2" style="letter-spacing: 1px;">Cập nhật lần cuối</label>
-                                <p class="h5 fw-bold text-dark mb-0">{{ $user->updated_at->format('d/m/Y H:i') }}</p>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="mt-5 pt-4 border-top d-flex gap-3">
-                        <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-primary px-5 py-3 rounded-3 fw-bold text-uppercase small shadow-sm" style="letter-spacing: 1px;">
-                            {{ __('Chỉnh sửa tài khoản') }}
-                        </a>
+                <div class="space-y-1">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Vai trò</p>
+                    @php
+                        $roleColors = [
+                            'admin' => 'bg-emerald-500/10 text-emerald-600',
+                            'employer' => 'bg-amber-500/10 text-amber-600',
+                            'candidate' => 'bg-purple-500/10 text-purple-600'
+                        ];
+                        $roleNames = [
+                            'admin' => 'Quản trị viên',
+                            'employer' => 'Nhà tuyển dụng',
+                            'candidate' => 'Ứng viên'
+                        ];
+                    @endphp
+                    <div class="p-4 rounded-2xl font-bold border border-white {{ $roleColors[$user->role] ?? 'bg-slate-100 text-slate-500' }}">
+                        {{ $roleNames[$user->role] ?? $user->role }}
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Địa chỉ Email</p>
+                    <div class="p-4 bg-slate-50 rounded-2xl font-bold text-slate-900 border border-white flex items-center gap-3">
+                        <span class="material-symbols-outlined text-slate-400 text-lg">mail</span>
+                        {{ $user->email }}
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Ngày tham gia</p>
+                    <div class="p-4 bg-slate-50 rounded-2xl font-bold text-slate-900 border border-white flex items-center gap-3">
+                        <span class="material-symbols-outlined text-slate-400 text-lg">calendar_today</span>
+                        {{ $user->created_at->format('d/m/Y H:i') }}
                     </div>
                 </div>
             </div>
+
+            <div class="pt-10 flex items-center justify-end gap-3 border-t border-slate-50 mt-10">
+                <a href="{{ route('admin.users.index') }}" class="px-8 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-bold text-sm transition-all active:scale-95">
+                    Quay lại
+                </a>
+                <a href="{{ route('admin.users.edit', $user) }}" class="px-10 py-4 bg-sky-500 hover:bg-sky-600 text-white rounded-2xl font-black text-sm shadow-xl shadow-sky-500/30 transition-all active:scale-95 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">edit</span>
+                    Chỉnh sửa
+                </a>
+            </div>
         </div>
     </div>
-</x-app-layout>
+</x-admin-layout>

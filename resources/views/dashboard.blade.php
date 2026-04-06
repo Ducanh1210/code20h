@@ -151,7 +151,7 @@
             </div>
         </div>
 
-        @if(Auth::user()->role === 'admin' && isset($totalUsers))
+        @if(Auth::check() && Auth::user()->role === 'admin' && isset($totalUsers))
             <!-- Admin Stats Section -->
             <div class="row g-4 mb-4">
                 <div class="col-md-6 col-lg-4">
