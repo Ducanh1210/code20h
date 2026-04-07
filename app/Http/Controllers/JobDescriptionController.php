@@ -83,4 +83,27 @@ class JobDescriptionController extends Controller
             abort(403, 'Bạn không sở hữu bản mô tả công việc này.');
         }
     }
+
+    public function generateQuestions(Request $request, JobDescription $jd, \App\Services\OpenRouterService $ai)
+    {
+        // Convert JD to text
+        $jdText = \App\Services\OpenRouterService::jdToText($jd);
+
+        // Call AI service
+        $result = $ai->generateInterviewQuestions($jdText);
+
+        if (isset($result['error'])) {
+            return response()->json(['success' => false, 'error' => $result['error']], 500);
+        }
+
+        // Save result directly to JSON column
+        $jd->update([
+            'interview_questions' => $result
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $result
+        ]);
+    }
 }

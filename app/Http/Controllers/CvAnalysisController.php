@@ -71,6 +71,7 @@ class CvAnalysisController extends Controller
                 'missing_skills' => $result['missing_skills'] ?? [],
                 'improvement_suggestions' => $result['improvement_suggestions'] ?? [],
                 'analysis_data' => $result,
+                'roadmap' => $result['roadmap'] ?? [],
             ]
         );
 
@@ -111,6 +112,56 @@ class CvAnalysisController extends Controller
         return response()->json([
             'success' => true,
             'data' => $result,
+        ]);
+    }
+
+    /**
+     * Show the dynamic Roadmap page.
+     */
+    public function roadmap()
+    {
+        $jds = JobDescription::latest()->get();
+        // Also fetch the most recently compared JD if any
+        $lastMatch = CvJobMatch::whereHas('cv', fn($q) => $q->where('user_id', Auth::id()))
+            ->with('jobDescription')
+            ->latest()
+            ->first();
+
+        return view('client.roadmap', compact('jds', 'lastMatch'));
+    }
+
+    /**
+     * Get roadmap JSON for a specific JD and the user's latest CV.
+     */
+    public function getRoadmap(JobDescription $jd)
+    {
+        $cv = Cv::where('user_id', Auth::id())->latest()->first();
+
+        if (!$cv) {
+            return response()->json(['error' => 'Bạn chưa có CV nào. Hãy tạo CV để xem lộ trình.'], 404);
+        }
+
+        $match = CvJobMatch::where('cv_id', $cv->id)
+            ->where('job_description_id', $jd->id)
+            ->first();
+
+        if (!$match || !$match->roadmap) {
+            return response()->json([
+                'error' => 'Chưa có phân tích lộ trình cho JD này.',
+                'needs_analysis' => true,
+                'cv_id' => $cv->id,
+                'jd_id' => $jd->id
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'roadmap' => $match->roadmap,
+            'match_score' => $match->match_score,
+            'company_name' => $jd->company_name,
+            'job_title' => $jd->title,
+            'cv_id' => $match->cv_id ?? $cv->id,
+            'jd_id' => $jd->id,
         ]);
     }
 }
