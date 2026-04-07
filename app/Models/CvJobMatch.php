@@ -18,6 +18,7 @@ class CvJobMatch extends Model
         'missing_skills',
         'improvement_suggestions',
         'analysis_data',
+        'roadmap',
     ];
 
     protected $casts = [
@@ -26,6 +27,7 @@ class CvJobMatch extends Model
         'missing_skills' => 'array',
         'improvement_suggestions' => 'array',
         'analysis_data' => 'array',
+        'roadmap' => 'array',
     ];
 
     public function cv(): BelongsTo

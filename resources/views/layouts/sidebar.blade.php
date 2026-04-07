@@ -49,10 +49,6 @@
 
     <div class="mt-auto border-t border-slate-200/50 p-2 space-y-1">
         @auth
-            <a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-200/50 transition-colors mx-2 rounded-xl" href="{{ route('profile.edit') }}">
-                <span class="material-symbols-outlined">settings</span>
-                <span class="font-medium">Cài đặt</span>
-            </a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-error dark:text-error hover:bg-error-container/20 transition-colors mx-2 rounded-xl">

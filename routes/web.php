@@ -40,6 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Job Description Management
     Route::get('/jobs', [JobDescriptionController::class, 'index'])->name('client.jobs');
     Route::post('/jobs', [JobDescriptionController::class, 'store'])->name('client.jobs.store');
+    Route::post('/jobs/{jd}/generate-questions', [JobDescriptionController::class, 'generateQuestions'])->name('client.jobs.generate-questions');
     Route::patch('/jobs/{jd}', [JobDescriptionController::class, 'update'])->name('client.jobs.update');
     Route::delete('/jobs/{jd}', [JobDescriptionController::class, 'destroy'])->name('client.jobs.destroy');
 
@@ -48,9 +49,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/ai-analysis/compare', [CvAnalysisController::class, 'compare'])->name('client.ai-analysis.compare');
     Route::post('/ai-analysis/analyze-cv', [CvAnalysisController::class, 'analyzeCv'])->name('client.ai-analysis.analyze-cv');
 
-    Route::get('/roadmap', function () {
-        return view('client.roadmap');
-    })->name('client.roadmap');
+    Route::get('/roadmap', [CvAnalysisController::class, 'roadmap'])->name('client.roadmap');
+    Route::get('/ai-analysis/roadmap/{jd}', [CvAnalysisController::class, 'getRoadmap'])->name('client.ai-analysis.get-roadmap');
 });
 
 Route::middleware('auth')->group(function () {
