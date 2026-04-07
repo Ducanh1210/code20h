@@ -101,6 +101,10 @@ class CvController extends Controller
 
             // Cleanup whitespace
             $extractedText = trim(preg_replace('/\s+/', ' ', $extractedText));
+            
+            // Prevent JSON Encoding Exception for Malformed UTF-8 from PDF
+            $extractedText = mb_convert_encoding($extractedText, 'UTF-8', 'UTF-8');
+            
             $cv->content = ['text' => $extractedText];
         } else {
             $sampleData = $this->getDefaultBuilderData();
