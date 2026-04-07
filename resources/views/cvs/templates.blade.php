@@ -46,28 +46,13 @@
                     <div class="w-full h-full bg-white shadow-2xl rounded-lg overflow-hidden border border-slate-100 relative group-hover:scale-[1.02] transition-transform duration-500">
                         <!-- Sidebar Template (Modern) -->
                         @if($template['id'] === 'modern_bento')
-                            <div class="flex h-full">
-                                <div :class="'w-1/3 h-full opacity-20 bg-' + selectedColor + '-500'"></div>
-                                <div class="p-4 space-y-3 flex-1">
-                                    <div :class="'h-3 w-3/4 rounded bg-' + selectedColor + '-100'"></div>
-                                    <div class="h-2 w-1/2 rounded bg-slate-50"></div>
-                                    <div class="pt-4 grid grid-cols-2 gap-2">
-                                        <div class="h-10 rounded bg-slate-50"></div>
-                                        <div class="h-10 rounded bg-slate-50"></div>
-                                    </div>
-                                </div>
-                            </div>
+                            <img src="{{ asset('img/templates/cv-template-modern-bento.png') }}" class="w-full h-full object-cover mix-blend-multiply" alt="Modern Bento Template Preview">
+                        @elseif($template['id'] === 'minimalist')
+                            <img src="{{ asset('img/templates/cv-template-minimalist.png') }}" class="w-full h-full object-cover mix-blend-multiply" alt="Minimalist Template Preview">
+                        @elseif($template['id'] === 'creative_ats')
+                            <img src="{{ asset('img/templates/cv-template-creative-ats.png') }}" class="w-full h-full object-cover mix-blend-multiply" alt="Creative ATS Template Preview">
                         @else
-                            <div class="p-6 space-y-4">
-                                <div :class="'h-4 w-1/2 rounded bg-' + selectedColor + '-200'"></div>
-                                <div class="h-2 w-full rounded bg-slate-50"></div>
-                                <div class="h-2 w-full rounded bg-slate-50"></div>
-                                <div class="pt-4 space-y-2">
-                                    <div :class="'h-1 w-full bg-' + selectedColor + '-100'"></div>
-                                    <div class="h-10 rounded bg-slate-50"></div>
-                                    <div class="h-10 rounded bg-slate-50"></div>
-                                </div>
-                            </div>
+                            <img src="{{ asset('img/templates/cv-template-classic-prof.png') }}" class="w-full h-full object-cover mix-blend-multiply" alt="Classic Professional Template Preview">
                         @endif
                         
                         <!-- Overlay Action -->

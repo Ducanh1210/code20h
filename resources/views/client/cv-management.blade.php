@@ -109,7 +109,8 @@
                     @endphp
 
                     <!-- Mini CV Preview (Thumbnail Square) -->
-                    <div class="relative w-20 h-20 bg-slate-50 border border-slate-100 rounded-2xl shadow-sm overflow-hidden transform group-hover:scale-105 transition-all duration-300 shrink-0 ring-4 ring-slate-50 cursor-pointer" onclick="viewCv({{ $cv->id }}, '{{ addslashes($cv->title) }}', '{{ $cv->is_uploaded ? 'File Đã Tải Lên' : addslashes($cv->content['text'] ?? '') }}')">
+                    <div class="relative w-20 h-20 bg-slate-50 border border-slate-100 rounded-2xl shadow-sm overflow-hidden transform group-hover:scale-105 transition-all duration-300 shrink-0 ring-4 ring-slate-50 cursor-pointer" onclick="viewCv({{ $cv->id }}, '{{ addslashes($cv->title) }}')">
+                        <div id="raw-content-{{ $cv->id }}" class="hidden">{{ $cv->content['text'] ?? '' }}</div>
                         @if($cv->is_uploaded)
                             <div class="absolute inset-0 bg-indigo-50 flex flex-col items-center justify-center gap-1 backdrop-blur-[2px]">
                                 <span class="material-symbols-outlined text-[28px] text-indigo-500 italic">description</span>
@@ -149,12 +150,24 @@
                                     <span class="material-symbols-outlined text-slate-400 text-lg">more_vert</span>
                                 </button>
                                 <div x-show="open" @click.away="open = false" class="absolute right-0 mt-1 w-44 bg-white rounded-xl shadow-xl shadow-slate-200/50 border border-slate-100 z-50 py-1.5 animate-fade-in origin-top-right">
-                                    <button onclick="editCv({{ $cv->id }}, '{{ addslashes($cv->title) }}', '{{ $cv->is_uploaded ? '' : addslashes($cv->content['text'] ?? '') }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors flex items-center gap-2">
-                                        <span class="material-symbols-outlined text-sm">edit</span> Tên & Nội dung
-                                    </button>
-                                    <button onclick="viewCv({{ $cv->id }}, '{{ addslashes($cv->title) }}', '{{ $cv->is_uploaded ? 'File Đã Tải Lên' : addslashes($cv->content['text'] ?? '') }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors flex items-center gap-2">
-                                        <span class="material-symbols-outlined text-sm">visibility</span> Xem nội dung
-                                    </button>
+                                    @if(!$cv->is_uploaded)
+                                        <button onclick="editCv({{ $cv->id }}, '{{ addslashes($cv->title) }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-sm">edit</span> Tên & Nội dung
+                                        </button>
+                                        <button onclick="viewCv({{ $cv->id }}, '{{ addslashes($cv->title) }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-sm">visibility</span> Xem nội dung
+                                        </button>
+                                    @else
+                                        <button onclick="editCv({{ $cv->id }}, '{{ addslashes($cv->title) }}', true)" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-sm">edit</span> Đổi tên File
+                                        </button>
+                                        <button onclick="viewCv({{ $cv->id }}, '{{ addslashes($cv->title) }}')" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-sm">document_scanner</span> Text trích xuất
+                                        </button>
+                                        <a href="{{ Storage::url($cv->file_path) }}" target="_blank" class="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-sm">description</span> Xem Bản Gốc
+                                        </a>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -257,6 +270,7 @@
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">Nội dung chi tiết</label>
                     <textarea id="edit-content" name="manual_content" rows="6" class="w-full bg-slate-50 border-none rounded-3xl px-6 py-4 font-medium text-slate-600 focus:ring-2 focus:ring-primary/20 outline-none"></textarea>
+                    <p id="edit-content-msg" class="text-[10px] text-slate-400 mt-2 px-2 hidden">Bạn không thể sửa nội dung của file tải lên.</p>
                 </div>
                 <button type="submit" class="w-full py-5 bg-secondary text-white font-black rounded-2xl hover:brightness-110 transition-all uppercase tracking-[0.2em] text-xs shadow-xl shadow-secondary/30">
                     Cập nhật thay đổi
@@ -289,17 +303,31 @@
 
     <!-- JS Logic for Dynamic Modals -->
     <script>
-        function editCv(id, title, content) {
+        function editCv(id, title, isUploaded = false) {
             const form = document.getElementById('edit-cv-form');
             form.action = `/cv-management/${id}`;
             document.getElementById('edit-title').value = title;
-            document.getElementById('edit-content').value = content;
+            
+            const contentBox = document.getElementById('edit-content');
+            const contentMsg = document.getElementById('edit-content-msg');
+            
+            if (isUploaded) {
+                contentBox.classList.add('hidden');
+                contentMsg.classList.remove('hidden');
+                contentBox.value = '';
+            } else {
+                contentBox.classList.remove('hidden');
+                contentMsg.classList.add('hidden');
+                contentBox.value = document.getElementById('raw-content-' + id).innerText;
+            }
             document.getElementById('edit-modal').classList.remove('hidden');
         }
 
-        function viewCv(id, title, content) {
+        function viewCv(id, title) {
             document.getElementById('view-title').innerText = title;
-            document.getElementById('view-content').innerText = content;
+            let text = document.getElementById('raw-content-' + id).innerText.trim();
+            if(!text) text = 'Chưa có hoặc không thể trích xuất nội dung từ hồ sơ này.';
+            document.getElementById('view-content').innerText = text;
             document.getElementById('view-modal').classList.remove('hidden');
         }
 
@@ -348,6 +376,13 @@
                 badge.classList.remove('hidden');
             }
         }
+
+        // Keep modal open if there are validation errors
+        @if(old('is_upload_form') == '1' && $errors->any())
+            document.addEventListener('DOMContentLoaded', function() {
+                document.getElementById('upload-modal').classList.remove('hidden');
+            });
+        @endif
     </script>
 
 
@@ -362,14 +397,25 @@
             
             <form action="{{ route('client.cv-management.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
+                
+                @if($errors->has('cv_file') && old('is_upload_form') == '1')
+                    <div class="bg-rose-50 text-rose-500 text-xs font-bold p-3 rounded-lg border border-rose-100 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[16px]">error</span>
+                        {{ $errors->first('cv_file') }}
+                    </div>
+                @endif
+                <input type="hidden" name="is_upload_form" value="1">
+
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">Tiêu đề hồ sơ</label>
-                    <input type="text" name="title" required placeholder="VD: CV - Nguyễn Văn A - Java Dev" class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 font-bold text-primary focus:ring-2 focus:ring-primary/20">
+                    <input type="text" name="title" required value="{{ old('title') }}" placeholder="VD: CV - Nguyễn Văn A - Java Dev" class="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 font-bold text-primary focus:ring-2 focus:ring-primary/20">
                 </div>
                 <div class="border-2 border-dashed border-slate-100 rounded-3xl p-10 flex flex-col items-center justify-center bg-slate-50 relative group hover:border-primary/30 transition-colors">
-                    <input type="file" name="cv_file" required class="absolute inset-0 opacity-0 cursor-pointer">
+                    <input type="file" name="cv_file" required accept=".pdf,.doc,.docx" 
+                           onchange="document.getElementById('filename-display').innerText = this.files[0] ? this.files[0].name : 'Kéo thả hoặc Click để chọn file';"
+                           class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10">
                     <span class="material-symbols-outlined text-5xl text-slate-200 group-hover:text-primary transition-colors mb-4">cloud_upload</span>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Kéo thả hoặc Click để chọn file</p>
+                    <p id="filename-display" class="text-xs font-bold text-slate-400 uppercase tracking-widest text-center px-4 mix-blend-multiply">Kéo thả hoặc Click để chọn file</p>
                     <p class="text-[10px] text-slate-400 mt-2">Hỗ trợ PDF, DOCX (Tối đa 10MB)</p>
                 </div>
                 <button type="submit" class="w-full py-5 bg-primary text-white font-black rounded-2xl hover:brightness-110 transition-all uppercase tracking-[0.2em] text-xs shadow-xl shadow-primary/30">
