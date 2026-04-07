@@ -18,6 +18,11 @@ class JobDescription extends Model
         'description',
         'requirements',
         'benefits',
+        'interview_questions',
+    ];
+
+    protected $casts = [
+        'interview_questions' => 'array',
     ];
 
     public function employer(): BelongsTo

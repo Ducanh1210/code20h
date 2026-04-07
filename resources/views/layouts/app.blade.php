@@ -11,7 +11,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         <style>
-            body { font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
+            body { font-family: 'Inter', sans-serif; min-height: 100vh; }
             .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
 
             /* Sidebar */

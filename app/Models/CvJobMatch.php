@@ -14,14 +14,20 @@ class CvJobMatch extends Model
         'cv_id',
         'job_description_id',
         'match_score',
+        'strengths',
         'missing_skills',
         'improvement_suggestions',
+        'analysis_data',
+        'roadmap',
     ];
 
     protected $casts = [
         'match_score' => 'decimal:2',
+        'strengths' => 'array',
         'missing_skills' => 'array',
         'improvement_suggestions' => 'array',
+        'analysis_data' => 'array',
+        'roadmap' => 'array',
     ];
 
     public function cv(): BelongsTo
