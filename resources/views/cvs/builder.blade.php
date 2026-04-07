@@ -90,11 +90,7 @@
                         <span id="save-status-text">Đã lưu</span>
                     </span>
 
-                    <!-- Download PDF Button -->
-                    <button onclick="window.print()" class="px-4 py-1.5 bg-slate-800 text-white font-black rounded-full hover:bg-slate-700 hover:shadow-md active:scale-95 transition-all uppercase text-[10px] tracking-widest flex items-center gap-2 group">
-                        <span class="material-symbols-outlined text-[16px] group-hover:-translate-y-0.5 transition-transform">download</span>
-                        <span>Tải PDF</span>
-                    </button>
+
 
                     <button @click="saveCv()" class="px-4 py-1.5 bg-primary text-white font-black rounded-full hover:shadow-md active:scale-95 transition-all uppercase text-[10px] tracking-widest flex items-center gap-2 group">
                         <span class="material-symbols-outlined text-[16px] group-hover:rotate-12 transition-transform">save</span>
@@ -120,10 +116,7 @@
         <div class="w-80 shrink-0 bg-white border-r border-slate-100 p-8 overflow-y-auto space-y-8">
             <div class="space-y-4">
                 <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Thao tác nhanh</h3>
-                <button @click="print()" class="w-full py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl font-black uppercase text-xs tracking-widest transition-all flex items-center justify-center gap-3">
-                    <span class="material-symbols-outlined text-lg">print</span>
-                    Xuất file PDF / In
-                </button>
+
                 <button @click="addSection('left')" class="w-full py-4 bg-white border-2 border-slate-100 hover:border-primary/20 hover:bg-slate-50 text-slate-500 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-3">
                     <span class="material-symbols-outlined text-sm">add_circle</span>
                     Mục Cột Trái

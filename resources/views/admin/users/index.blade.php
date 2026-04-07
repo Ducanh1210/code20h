@@ -89,6 +89,7 @@
                         <tr class="text-left border-b border-slate-100">
                             <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Người dùng</th>
                             <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Vai trò</th>
+                            <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Trạng thái</th>
                             <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ngày đăng ký</th>
                             <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Thao tác</th>
                         </tr>
@@ -120,6 +121,19 @@
                                 </span>
                             </td>
                             <td class="px-8 py-5">
+                                @if($user->is_active)
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600">
+                                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                                        Hoạt động
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-500/10 text-rose-600">
+                                        <span class="w-1.5 h-1.5 bg-rose-500 rounded-full"></span>
+                                        Bị khóa
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="px-8 py-5">
                                 <p class="text-xs font-bold text-slate-600 capitalize tracking-tight">
                                     {{ $user->created_at->translatedFormat('d M, Y') }}
                                 </p>
@@ -132,19 +146,25 @@
                                     <a href="{{ route('admin.users.edit', $user) }}" class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center hover:bg-sky-500 hover:text-white transition-all shadow-sm">
                                         <span class="material-symbols-outlined text-lg">edit</span>
                                     </a>
-                                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa người dùng này?')">
+                                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('{{ $user->is_active ? 'Bạn có chắc chắn muốn khóa tài khoản này?' : 'Bạn có muốn mở khóa tài khoản này?' }}')">
                                         @csrf
                                         @method('DELETE')
-                                        <button class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-sm {{ $user->id === auth()->id() ? 'opacity-20 cursor-not-allowed' : '' }}" {{ $user->id === auth()->id() ? 'disabled' : '' }}>
-                                            <span class="material-symbols-outlined text-lg">delete</span>
-                                        </button>
+                                        @if($user->is_active)
+                                            <button class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all shadow-sm {{ $user->id === auth()->id() ? 'opacity-20 cursor-not-allowed' : '' }}" {{ $user->id === auth()->id() ? 'disabled' : '' }} title="Khóa tài khoản">
+                                                <span class="material-symbols-outlined text-lg">lock</span>
+                                            </button>
+                                        @else
+                                            <button class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-sm" title="Mở khóa tài khoản">
+                                                <span class="material-symbols-outlined text-lg">lock_open</span>
+                                            </button>
+                                        @endif
                                     </form>
                                 </div>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="px-8 py-20 text-center">
+                            <td colspan="5" class="px-8 py-20 text-center">
                                 <div class="flex flex-col items-center gap-3">
                                     <span class="material-symbols-outlined text-slate-200 text-6xl">search_off</span>
                                     <p class="font-bold text-slate-400 text-sm">Không tìm thấy người dùng nào phù hợp.</p>

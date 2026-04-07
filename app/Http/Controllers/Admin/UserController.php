@@ -101,17 +101,21 @@ class UserController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Toggle lock/unlock user account.
      */
     public function destroy(User $user)
     {
         if ($user->id === auth()->id()) {
-            return back()->with('error', 'Bạn không thể tự xóa chính mình!');
+            return back()->with('error', 'Bạn không thể tự khóa chính mình!');
         }
 
-        $user->delete();
+        $user->update(['is_active' => !$user->is_active]);
+
+        $message = $user->is_active
+            ? 'Đã mở khóa tài khoản thành công!'
+            : 'Đã khóa tài khoản thành công!';
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'Đã xóa người dùng thành công!');
+            ->with('success', $message);
     }
 }

@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,7 +17,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('dashboard');
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    }
+    return redirect()->route('login');
 })->name('index');
 
 use App\Http\Controllers\CvController;
@@ -23,9 +28,7 @@ use App\Http\Controllers\JobDescriptionController;
 use App\Http\Controllers\CvAnalysisController;
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // CV Management
     Route::get('/cv-management', [CvController::class, 'index'])->name('client.cv-management');
@@ -61,13 +64,13 @@ Route::middleware('auth')->group(function () {
 
 // Admin Routes
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\JobDescriptionController as AdminJobDescriptionController;
+
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('users', UserController::class);
-    Route::resource('jobs', AdminJobDescriptionController::class)->parameters(['jobs' => 'job:id']);
+
 });
 
 require __DIR__.'/auth.php';

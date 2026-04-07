@@ -40,12 +40,7 @@
         </a>
     </nav>
 
-    <div class="p-4">
-        <button class="w-full py-3 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-bold shadow-lg shadow-primary/20 hover:brightness-110 transition-all flex items-center justify-center gap-2">
-            <span class="material-symbols-outlined text-sm">add</span>
-            Tạo CV mới
-        </button>
-    </div>
+
 
     <div class="mt-auto border-t border-slate-200/50 p-2 space-y-1">
         @auth

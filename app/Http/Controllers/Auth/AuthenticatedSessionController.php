@@ -27,6 +27,16 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
+        if (!$request->user()->is_active) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()->withErrors([
+                'email' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ admin.',
+            ]);
+        }
+
         $request->session()->regenerate();
 
         if ($request->user()->role === 'admin') {

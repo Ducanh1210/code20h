@@ -59,19 +59,7 @@
                         <span class="font-bold text-sm">Quản lý User</span>
                     </a>
 
-                    <div class="px-4 mt-8 mb-4">
-                        <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Nội dung</p>
-                    </div>
 
-                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all group">
-                        <span class="material-symbols-outlined text-slate-400 group-hover:text-white">description</span>
-                        <span class="font-bold text-sm">Quản lý CV</span>
-                    </a>
-
-                    <a href="{{ route('admin.jobs.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all group {{ request()->routeIs('admin.jobs.*') ? 'sidebar-link-active' : 'hover:bg-white/5' }}">
-                        <span class="material-symbols-outlined {{ request()->routeIs('admin.jobs.*') ? 'text-sky-400' : 'text-slate-400 group-hover:text-white' }}">work</span>
-                        <span class="font-bold text-sm">Quản lý Job</span>
-                    </a>
                 </nav>
 
                 <!-- Footer Sidebar -->
